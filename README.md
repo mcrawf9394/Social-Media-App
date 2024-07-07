@@ -1,1 +1,1 @@
-# Fullstack Template
+# Social Media App

@@ -6,4 +6,8 @@ router.get('/', function(req, res, next) {
   res.json({msg: "hello"})
 });
 
+// User Routes
+
+// Post Routes
+
 module.exports = router;
