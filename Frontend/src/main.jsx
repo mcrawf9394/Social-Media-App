@@ -10,6 +10,7 @@ import Profile from './components/profile/Profile.jsx'
 import ViewProfile from './components/profile/ViewProfile.jsx'
 import Friends from './components/profile/Friends.jsx'
 import SinglePost from './components/SinglePost.jsx'
+import UserList from './components/profile/UserList.jsx'
 import './stylesheet/index.css'
 
 const Router = createBrowserRouter([
@@ -18,13 +19,14 @@ const Router = createBrowserRouter([
     element: <App/>,
     errorElement: <ErrorPage />,
     children: [
-      { path: 'home', element: <DisplayPosts /> },
+     // { path: '/', element: <DisplayPosts /> },
       { path: 'signup', element: <SignUp /> },
       { path: 'login', element: <Login /> },
       { path: 'currentuser/:userId', element: <Profile /> },
       { path: 'profile/:userId', element: <ViewProfile /> },
       { path: 'currentuser/:userId/friends', element: <Friends /> },
-      { path: 'post/:postId', element: <SinglePost />}
+      { path: 'post/:postId', element: <SinglePost />},
+      { path: 'users', element: <UserList />}
     ]
   }
 ])
