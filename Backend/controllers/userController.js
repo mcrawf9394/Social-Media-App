@@ -33,53 +33,55 @@ exports.getUsers = asyncHandler (async (req, res, next) => {
 exports.getSomeUsers = asyncHandler (async (req, res, next) => {
 
 })
+exports.getSingleUser = asyncHandler (async (req, res, next) => {
+
+})
 exports.addUser = [
-    body('username')
+    body("username")
         .trim()
         .isLength({min: 1})
         .custom(async val => {
             try {
-                const user = await User.findOne({username: val})
+                const user = await User.findOne({username: val}) 
                 if (user) {
-                    throw new Error("This user already exists")
+                    throw new Error("User Already exists");
                 }
-            } catch {
-                throw new Error("There was an issue reaching the database")
+            } catch (err) {
+                console.log(err)
             }
         })
         .escape(),
-    body('password')
+    body("password")
         .trim()
-        .isLength({min: 5, max: 20})
+        .isLength({min: 6, max: 20})
         .escape(),
-    body('confirm')
+    body("confirm")
         .trim()
-        .isLength({min: 5, max: 20})
         .custom((val, {req}) => {
             return val === req.body.password
         })
         .escape(),
-    asyncHandler (async (req, res, next) => {
+    asyncHandler(async (req, res, next) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-            res.status(200).json({errors: errors.array()})
-        } else {
-            const salt = bcrypt.genSaltSync(10)
-            const password = bcrypt.hashSync(req.body.password, salt)
-            const newUser = new User({
-                username: req.body.username,
-                password: password,
-                profilePic: '',
-                bio: '',
-                following: []
-            })
-            try {
-                await newUser.save()
-                res.status(200).json({msg: "User added"})
-            } catch {
-                res.status(500)
-            }
+            res.json({errors: errors.array()})
         }
+        const salt = bcrypt.genSaltSync(10)
+        const password = bcrypt.hashSync(req.body.password, salt)
+        let newUser = new User({
+            username: req.body.username,
+            password: password,
+            profilePic: '',
+            bio: '',
+            following: []
+        })
+        try {
+            await newUser.save()
+            res.status(200).json({success: "User successfully created"})
+        } catch (err) {
+            res.status(500)
+        }
+
     })
 ]
 exports.loginUser = [
@@ -104,7 +106,7 @@ exports.loginUser = [
                     res.status(200).json({errors: [{msg: 'Password incorrect'}]})
                 } else {
                     let token = jwt.sign({id: user._id}, process.env.ACCESS_SECRET, {expiresIn: '7d'})
-                    res.status(200).json({token, name: user.username})
+                    res.status(200).json({token})
                 }
             } catch {
                 res.status(500)
