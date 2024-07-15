@@ -11,10 +11,10 @@ router.get('/users', userController.getUsers)
 router.post('/users', userController.addUser)
 router.get('/users/auth', userController.auth)
 router.post('/users/login', userController.loginUser)
+router.get('/users/following', userController.getSomeUsers)
 router.get('/users/:userId', userController.getSingleUser)
 router.put('/users', userController.updateUser)
 router.delete('/users/:userId', userController.deleteUser)
-router.get('/users/following', userController.getSomeUsers)
 // Post Routes
 
 module.exports = router;

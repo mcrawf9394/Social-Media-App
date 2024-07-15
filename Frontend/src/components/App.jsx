@@ -28,9 +28,10 @@ function App() {
             if (request.status === 401) {
               localStorage.clear()
               navigate('/login')
-            }
+            } else {
             const response = await request.json()
-            navigate(`/currentuser/${response.id}}/following`)
+              navigate(`/currentuser/${response.id}}/following`)
+            }
           }
           catch {
             console.log('error reaching the server')
@@ -59,9 +60,10 @@ function App() {
             if (request.status === 401) {
               localStorage.clear()
               navigate('/login')
+            } else {
+              const response = await request.json()
+              navigate(`/currentuser/${response.id}`)
             }
-            const response = await request.json()
-            navigate(`/currentuser/${response.id}`)
           } catch {
             console.log('error reaching the server')
           }
