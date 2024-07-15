@@ -7,6 +7,7 @@ import Friends from './profile/Friends'
 import ViewProfile from './profile/ViewProfile'
 import SignUp from './profile/Sign-up'
 import SinglePost from './SinglePost'
+import info from '../info'
 function App() {
   const navigate = useNavigate()
   return <>
@@ -15,26 +16,55 @@ function App() {
         click.preventDefault()
         navigate('/')
       }}>Space's for faces</button>
-      <button className='text-gray-400' onClick={(click) => {
+      <button className='text-gray-400' onClick={async (click) => {
         click.preventDefault()
-        if (localStorage.getItem('name')) {
-          navigate(`/currentuser/${localStorage.getItem('name')}/friends`)
+        if (localStorage.getItem('token')) {
+          try {
+            const request = await fetch(info + '/api/users/auth', {
+              mode: 'cors',
+              method: 'get',
+              headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            })
+            if (request.status === 401) {
+              localStorage.clear()
+              navigate('/login')
+            }
+            const response = await request.json()
+            navigate(`/currentuser/${response.id}}/following`)
+          }
+          catch {
+            console.log('error reaching the server')
+          }
         } else {
           navigate('/login')
         }
       }}>Following</button>
       <button className='text-gray-400' onClick={(click) => {
         click.preventDefault()
-        if (localStorage.getItem('name')) {
+        if (localStorage.getItem('token')) {
           navigate('/users')
         } else {
           navigate('/login')
         }
       }}>Find People</button>
-      <button className='text-gray-400' onClick={(click) => {
+      <button className='text-gray-400' onClick={async (click) => {
         click.preventDefault()
-        if (localStorage.getItem('name')) {
-          navigate(`/currentuser/${localStorage.getItem('name')}`)
+        if (localStorage.getItem('token')) {
+          try {
+            const request = await fetch(info + '/api/users/auth', {
+              mode: 'cors',
+              method: 'get',
+              headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            })
+            if (request.status === 401) {
+              localStorage.clear()
+              navigate('/login')
+            }
+            const response = await request.json()
+            navigate(`/currentuser/${response.id}`)
+          } catch {
+            console.log('error reaching the server')
+          }
         } else {
           navigate('/login')
         }

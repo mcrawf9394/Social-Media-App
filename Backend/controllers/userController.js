@@ -15,7 +15,9 @@ cloudinary.config({
 exports.auth = [
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
-        res.status(200).json({msg: "Authorized"})
+        let token = req.headers.authorization.split(' ')[1]
+        let user = jwt.decode(token)
+        res.status(200).json({id: user.id, msg: "Authorized"})
     }
 ]
 exports.getUsers = asyncHandler (async (req, res, next) => {
@@ -34,20 +36,30 @@ exports.getSomeUsers = asyncHandler (async (req, res, next) => {
 
 })
 exports.getSingleUser = asyncHandler (async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userId)
+        if (!user) {
+            res.status(404)
+        } else {
+            if (user.profilePic === '1') {
+                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed ,following: user.following})
+            } else {
 
+                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed, following: user.following})
+            }
+        }
+    } catch {
+        res.status(500).json({errors: [{msg: "There was an issue reaching the database"}]})
+    }
 })
 exports.addUser = [
     body("username")
         .trim()
         .isLength({min: 1})
         .custom(async val => {
-            try {
-                const user = await User.findOne({username: val}) 
-                if (user) {
-                    throw new Error("User Already exists");
-                }
-            } catch (err) {
-                console.log(err)
+            const user = await User.findOne({username: val})
+            if (user != undefined || user != null) {
+                throw new Error('User Already exists')
             }
         })
         .escape(),
@@ -64,52 +76,53 @@ exports.addUser = [
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-            res.json({errors: errors.array()})
+            res.status(200).json({errors: errors.array()})
+        } else {
+            const salt = bcrypt.genSaltSync(10)
+            const password = bcrypt.hashSync(req.body.password, salt)
+            let newUser = new User({
+                username: req.body.username,
+                password: password,
+                profilePic: '1',
+                bio: 'This user has no bio',
+                followed: [],
+                following: []
+            })
+            try {
+                await newUser.save()
+                res.status(200).json({success: "User successfully created"})
+            } catch {
+                res.status(500)
+            }
         }
-        const salt = bcrypt.genSaltSync(10)
-        const password = bcrypt.hashSync(req.body.password, salt)
-        let newUser = new User({
-            username: req.body.username,
-            password: password,
-            profilePic: '',
-            bio: '',
-            following: []
-        })
-        try {
-            await newUser.save()
-            res.status(200).json({success: "User successfully created"})
-        } catch (err) {
-            res.status(500)
-        }
-
     })
 ]
 exports.loginUser = [
-    body('username')
+    body("username")
         .trim()
         .isLength({min: 1})
         .escape(),
-    body('password')
+    body("password")
         .trim()
         .isLength({min: 5, max: 20})
         .escape(),
-    asyncHandler(async (res, req, next) => {
+    asyncHandler(async (req, res, next) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-            res.status(200).json({errors: errors.array()})
+            res.json({errors: errors.array()})
         } else {
             try {
                 const user = await User.findOne({username: req.body.username})
                 if (!user) {
-                    res.status(404)
+                    res.json({errors: {"msg": "This user does not exist"}})
                 } else if (!bcrypt.compareSync(req.body.password, user.password)) {
-                    res.status(200).json({errors: [{msg: 'Password incorrect'}]})
+                    res.json({errors: {"msg": "This password is incorrect"}})
                 } else {
                     let token = jwt.sign({id: user._id}, process.env.ACCESS_SECRET, {expiresIn: '7d'})
-                    res.status(200).json({token})
+                    res.json({token})
                 }
             } catch {
-                res.status(500)
+               res.status(500).json({errors: {msg: 'There has been an error reaching the server'}})
             }
         }
     })

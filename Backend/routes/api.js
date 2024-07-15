@@ -10,10 +10,10 @@ router.get('/', function(req, res, next) {
 router.get('/users', userController.getUsers)
 router.post('/users', userController.addUser)
 router.get('/users/auth', userController.auth)
-router.get('/users/login', userController.loginUser)
+router.post('/users/login', userController.loginUser)
 router.get('/users/:userId', userController.getSingleUser)
 router.put('/users', userController.updateUser)
-router.delete('/users', userController.deleteUser)
+router.delete('/users/:userId', userController.deleteUser)
 router.get('/users/following', userController.getSomeUsers)
 // Post Routes
 

@@ -4,6 +4,7 @@ const User = new Schema({
     password: {type: String, required: true},
     profilePic: {type: String, required: true},
     bio: {type: String, required: true},
+    followed: {type: Array, required: true},
     following: {type: Array, required: true}
 })
 module.exports = model("User", User)

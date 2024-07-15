@@ -23,11 +23,11 @@ function SignUp () {
                         mode: 'cors',
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: {
-                            username: user,
-                            password: pass,
-                            confirm: confirm
-                        }  
+                        body: JSON.stringify({
+                            "username": user,
+                            "password": pass,
+                            "confirm": confirm
+                        }) 
                     })
                     if (request.status != 200) {
                         setErrors([{msg: 'There was an issue reaching the server'}])
@@ -37,8 +37,8 @@ function SignUp () {
                         if (response.errors) {
                             setErrors(response.errors)
                         } else {
-                            localStorage.setItem('token', response.token)
-                            navigate('/')
+                            //localStorage.setItem('token', response.token)
+                            navigate('/login')
                         }
                     }
                 } catch {
@@ -48,7 +48,11 @@ function SignUp () {
         </Form>
         <ul>
             {errors.map((error) => {
-                return <li className="text-gray-400" key={uuidV4()}>{error.msg}</li>
+                if (error.path) {
+                    return <li className="text-gray-400" key={uuidV4()}>{error.path} - {error.msg}</li>
+                } else {
+                    return <li className="text-gray-400" key={uuidV4()}>{error.msg}</li> 
+                }
             })}
         </ul>
     </>
