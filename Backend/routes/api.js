@@ -13,8 +13,9 @@ router.get('/users/auth', userController.auth)
 router.post('/users/login', userController.loginUser)
 router.get('/users/following', userController.getSomeUsers)
 router.get('/users/:userId', userController.getSingleUser)
-router.put('/users', userController.updateUser)
+router.put('/users/:userId', userController.updateUser)
 router.delete('/users/:userId', userController.deleteUser)
+router.put('/users/:userId/picture', userController.updateUserPicture)
 // Post Routes
 
 module.exports = router;

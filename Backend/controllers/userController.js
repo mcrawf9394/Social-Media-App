@@ -129,13 +129,51 @@ exports.loginUser = [
 ]
 exports.updateUser = [
     passport.authenticate('jwt', {session: false}),
+    body("username")
+        .trim()
+        .isLength({min: 1})
+        .escape(),
+    body("bio")
+        .trim()
+        .isLength({min: 5})
+        .escape(),
     asyncHandler(async (req, res, next) => {
-
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            res.status(200).json({errors: errors.array()})
+        } else {
+            try {
+                await User.findByIdAndUpdate(req.params.userId, {username: req.body.username, bio: req.body.bio})
+                res.status(200).json({success: "This user has been updated"})
+            } catch {
+                res.status(500).json({errors: [{msg: "There has been an error reaching the database"}]})
+            }
+        }
     })
 ]
 exports.deleteUser = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req, res, next) => {
         
+    })
+]
+exports.updateUserPicture = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        const picId = uuid()
+        try {
+            const response = await cloudinary.uploader.upload(req.body, {public_id: picId}).catch((error) =>  console.log(error))
+            if (response.status === 200) {
+                let token = req.headers.authorization.split(' ')[1]
+                let user = jwt.decode(token)
+                await User.findByIdAndUpdate(user.id, {profilePic: picId})
+                res.status(200).json({success: "The user's picture has been updated"})
+            } else {
+                let info = await response.json().error.message
+                res.status(500).json({errors: [{msg: info}]})
+            }
+        } catch {
+            res.status(200).json({errors: [{msg: 'There was an error uploading the image'}]})
+        }
     })
 ]

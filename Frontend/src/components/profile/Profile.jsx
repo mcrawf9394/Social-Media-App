@@ -42,9 +42,47 @@ function Profile () {
             <label className="text-gray-400 self-end" htmlFor="bio">Bio</label>
             <input className="bg-white border-2 border-solid border-gray-400 h-10" id="bio" value={bio} onChange={e => setBio(e.target.value)} type="text" required/>
             <label className="text-gray-400 self-end" htmlFor="picture">Upload Profile Picture</label>
-            <input className="" id='picture' type='file' accept="image/*"/>
+            <input className="" onChange={e => setProfilePic(e.target.value)} id='picture' type='file' accept="image/jpeg"/>
             <button className="text-gray-400" onClick={async click => {
                 click.preventDefault()
+                try {
+                    const request = await fetch(info + `/api/users/${params.userId}`,{
+                        mode: 'cors',
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                        body: JSON.stringify({
+                            username: user,
+                            bio: bio
+                        })
+                    })
+                    if (request.status === 404) {
+                        localStorage.clear()
+                        navigate('/login')
+                    } else {
+                        const response = await request.json()
+                        if (response.errrors) {
+                            setErrors(response.errors)
+                        }
+                    }
+                    if (profilePic != '../../../blank-profile-picture-973460_640.png') {
+                        const request2 = await fetch(info + `/api/users/${params.userId}/picture`, {
+                            mode: 'cors',
+                            method: 'PUT',
+                            headers: {'Content-Type': 'image/jpeg', 'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                            body: profilePic
+                        })
+                        const response2 = await request2.json()
+                        if (response2.errors) {
+                            setErrors(response2.errors)
+                        } else {
+                            navigate('/')
+                        }
+                    } else {
+                        navigate('/')
+                    }
+                } catch {
+                    setErrors([{msg: 'There was an error reaching the server'}])
+                }
             }}>Submit</button>
         </Form>
         <ul>
