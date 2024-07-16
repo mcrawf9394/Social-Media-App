@@ -32,9 +32,6 @@ exports.getUsers = asyncHandler (async (req, res, next) => {
         res.status(200).json({msg: "There was an error reaching the server"})
     }
 })
-exports.getSomeUsers = asyncHandler (async (req, res, next) => {
-
-})
 exports.getSingleUser = asyncHandler (async (req, res, next) => {
     try {
         const user = await User.findById(req.params.userId)
@@ -143,7 +140,9 @@ exports.updateUser = [
             res.status(200).json({errors: errors.array()})
         } else {
             try {
-                await User.findByIdAndUpdate(req.params.userId, {username: req.body.username, bio: req.body.bio})
+                let token = req.headers.authorization.split(' ')[1]
+                let user = jwt.decode(token)
+                await User.findByIdAndUpdate(user.id, {username: req.body.username, bio: req.body.bio})
                 res.status(200).json({success: "This user has been updated"})
             } catch {
                 res.status(500).json({errors: [{msg: "There has been an error reaching the database"}]})
@@ -154,7 +153,14 @@ exports.updateUser = [
 exports.deleteUser = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req, res, next) => {
-        
+        try {
+            let token = req.headers.authorization.split(' ')[1]
+            let user = jwt.decode(token)
+            await User.findByIdAndDelete(user.id)
+            res.status(200).json({success: 'The user was deleted successfully'})
+        } catch {
+            res.status(500).json({errors: [{msg: 'There was an error accessing the database'}]})
+        }
     })
 ]
 exports.updateUserPicture = [

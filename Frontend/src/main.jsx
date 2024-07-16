@@ -12,6 +12,7 @@ import Friends from './components/profile/Friends.jsx'
 import SinglePost from './components/SinglePost.jsx'
 import UserList from './components/profile/UserList.jsx'
 import './stylesheet/index.css'
+import DeleteDialog from './components/profile/DeleteDialog.jsx'
 
 const Router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const Router = createBrowserRouter([
      // { path: '/', element: <DisplayPosts /> },
       { path: 'signup', element: <SignUp /> },
       { path: 'login', element: <Login /> },
-      { path: 'currentuser/:userId', element: <Profile /> },
+      { path: 'currentuser/:userId', element: <Profile />,children: [{element: <DeleteDialog />}]},
       { path: 'profile/:userId', element: <ViewProfile /> },
       { path: 'currentuser/:userId/friends', element: <Friends /> },
       { path: 'post/:postId', element: <SinglePost />},
