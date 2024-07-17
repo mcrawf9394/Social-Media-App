@@ -12,7 +12,7 @@ function Profile () {
     const [bio, setBio] = useState('')
     const [following, setFollowing] = useState([{}])
     const [followed, setFollowed] = useState([{}])
-    const [profilePic, setProfilePic] = useState('../../../blank-profile-picture-973460_640.png')
+    const [profilePic, setProfilePic] = useState([{name: '../../../blank-profile-picture-973460_640.png'}])
     const [errors, setErrors] = useState([{msg: ''}]) 
     useEffect(() => {
         const getInfo = async () => {
@@ -42,14 +42,20 @@ function Profile () {
         <DeleteDialog onClose={() => setShowModal(false)} />,
         document.body
       )}
-        <Form className="grid grid-rows-9 h-96 mt-10 w-10/12 mx-auto md:w-8/12">
-            <img className="w-20 mx-auto" src={profilePic} alt="User's Profile Picture" />
+        <Form className="grid grid-rows-10 h-96 mt-10 w-10/12 mx-auto md:w-8/12">
+            <img className="w-20 mx-auto row-span-2" src={`${profilePic[0].name}`} alt="User's Profile Picture" />
             <label className="text-gray-400 self-end" htmlFor="user">Username</label>
             <input className="bg-white border-2 border-solid border-gray-400 h-10" id="user" value={user} onChange={e => setUser(e.target.value)} type="text" required/>
             <label className="text-gray-400 self-end" htmlFor="bio">Bio</label>
             <input className="bg-white border-2 border-solid border-gray-400 h-10" id="bio" value={bio} onChange={e => setBio(e.target.value)} type="text" required/>
             <label className="text-gray-400 self-end" htmlFor="picture">Upload Profile Picture</label>
-            <input className="" onChange={e => setProfilePic(e.target.value)} id='picture' type='file' accept="image/jpeg"/>
+            <input className="" onChange={e => { 
+                   const reader = new FileReader()
+                   reader.readAsDataURL(e.target.files[0])
+                   reader.onloadend = () => {
+                       setProfilePic([{name: reader.result}])
+                   }   
+                }} id='picture' type='file' accept="image/jpeg"/>
             <button className="text-gray-400" onClick={async click => {
                 click.preventDefault()
                 try {
@@ -71,12 +77,12 @@ function Profile () {
                             setErrors(response.errors)
                         }
                     }
-                    if (profilePic != '../../../blank-profile-picture-973460_640.png') {
+                    if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
                         const request2 = await fetch(info + `/api/users/${params.userId}/picture`, {
                             mode: 'cors',
                             method: 'PUT',
-                            headers: {'Content-Type': 'image/jpeg', 'Authorization': `Bearer ${localStorage.getItem('token')}`},
-                            body: profilePic
+                            headers: {'Content-Type': 'application/json','Authorization': `Bearer ${localStorage.getItem('token')}`},
+                            body: JSON.stringify({img: profilePic[0].name})
                         })
                         const response2 = await request2.json()
                         if (response2.errors) {

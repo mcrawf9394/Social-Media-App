@@ -111,9 +111,9 @@ exports.loginUser = [
             try {
                 const user = await User.findOne({username: req.body.username})
                 if (!user) {
-                    res.json({errors: {"msg": "This user does not exist"}})
+                    res.json({errors: [{"msg": "This user does not exist"}]})
                 } else if (!bcrypt.compareSync(req.body.password, user.password)) {
-                    res.json({errors: {"msg": "This password is incorrect"}})
+                    res.json({errors: [{"msg": "This password is incorrect"}]})
                 } else {
                     let token = jwt.sign({id: user._id}, process.env.ACCESS_SECRET, {expiresIn: '7d'})
                     res.json({token})
@@ -167,8 +167,9 @@ exports.updateUserPicture = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req, res, next) => {
         const picId = uuid()
+        console.log(req.body.img)
         try {
-            const response = await cloudinary.uploader.upload(req.body, {public_id: picId}).catch((error) =>  console.log(error))
+            const response = await cloudinary.uploader.upload(req.body.img, {public_id: picId})
             if (response.status === 200) {
                 let token = req.headers.authorization.split(' ')[1]
                 let user = jwt.decode(token)
@@ -178,7 +179,8 @@ exports.updateUserPicture = [
                 let info = await response.json().error.message
                 res.status(500).json({errors: [{msg: info}]})
             }
-        } catch {
+        } catch (error) {
+            console.log(error)
             res.status(200).json({errors: [{msg: 'There was an error uploading the image'}]})
         }
     })
