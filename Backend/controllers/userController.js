@@ -20,18 +20,34 @@ exports.auth = [
         res.status(200).json({id: user.id, msg: "Authorized"})
     }
 ]
-exports.getUsers = asyncHandler (async (req, res, next) => {
-    try {
-        const users = await User.find().sort({_id: 1}).exec()
-        if (users.length === 0) {
-            res.status(200).json({users: []})
-        } else {
-            res.status(200).json({users: users})
+exports.getUsers = [
+    passport.authenticate('jwt', {session: false}), 
+    asyncHandler (async (req, res, next) => {
+        try {
+            let token = req.headers.authorization.split(' ')[1]
+            let user = jwt.decode(token)
+            const users = await User.find({_id:{$not: {$eq: user.id}}}).sort({_id: 1})
+            if (users.length === 0) {
+                res.status(200).json({users: [{id: 1, username: 'No profiles', profilePic: '../../blank-profile-picture-973460_640.png'}]})
+            } else {
+                const arr = []
+                for (i = 0; i < users.length; i++) {
+                    const createNode = (profile) => {
+                        return {
+                            username: profile.username,
+                            id: profile._id,
+                            profilePic: "../../blank-profile-picture-973460_640.png"
+                        }
+                    }
+                    arr.push(createNode(users[i]))
+                }
+                res.status(200).json({users: arr})
+            }
+        } catch {
+            res.status(200).json({msg: "There was an error reaching the server"})
         }
-    } catch {
-        res.status(200).json({msg: "There was an error reaching the server"})
-    }
-})
+    })
+]
 exports.getSingleUser = asyncHandler (async (req, res, next) => {
     try {
         const user = await User.findById(req.params.userId)
@@ -167,7 +183,6 @@ exports.updateUserPicture = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req, res, next) => {
         const picId = uuid()
-        console.log(req.body.img)
         try {
             const response = await cloudinary.uploader.upload(req.body.img, {public_id: picId})
             if (response.status === 200) {

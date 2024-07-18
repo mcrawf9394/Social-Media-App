@@ -101,6 +101,11 @@ function Profile () {
                 click.preventDefault()
                 setShowModal(true)
             }}>Delete</button>
+            <button className="text-gray-400" onClick={click => {
+                click.preventDefault()
+                localStorage.clear()
+                navigate('/')
+            }} >Log off</button>
         </Form>
         <ul>
             {errors.map(error => {
