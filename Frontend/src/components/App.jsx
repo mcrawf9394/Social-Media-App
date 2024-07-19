@@ -1,12 +1,12 @@
 import { useNavigate, Routes, Route } from 'react-router-dom'
-import DisplayPost from './DisplayPosts'
+import DisplayPost from './posts/DisplayPosts'
 import Login from './profile/Login'
 import UserList from './profile/UserList'
 import Profile from './profile/Profile'
 import Friends from './profile/Friends'
 import ViewProfile from './profile/ViewProfile'
 import SignUp from './profile/Sign-up'
-import SinglePost from './SinglePost'
+import SinglePost from './posts/SinglePost'
 import info from '../info'
 function App() {
   const navigate = useNavigate()

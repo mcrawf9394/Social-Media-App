@@ -200,3 +200,73 @@ exports.updateUserPicture = [
         }
     })
 ]
+exports.followUser = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        try {
+            let user = jwt.decode(req.headers.authorization.split(' ')[1])
+            if (user.id === req.params.userId) {
+                res.status(200).json({errors: [{msg: 'You can not follow yourself'}]})
+            } else {
+                await User.findByIdAndUpdate(req.params.userId, {$push: {followed: user.id}})
+                const userInfo = await User.findByIdAndUpdate(user.id, {$push: {following: req.params.userId}})
+                res.status(200).json({user: {username: userInfo.username, profilePic: userInfo.profilePic}})
+            }
+        } catch {
+            res.status(500).json({errors: [{msg: 'There has been an error reaching the database'}]})
+        }
+    })
+]
+exports.unfollowUser = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        try {
+            let user = jwt.decode(req.headers.authorization.split(' ')[1])
+            if (user.id === req.params.userId) {
+                res.status(200).json({errors: [{msg: 'You can not follow yourself'}]})
+            } else {
+                await User.findByIdAndUpdate(req.params.userId, {$pull: {followed: user.id}})
+                await User.findByIdAndUpdate(user.id, {$pull: {following: req.params.userId}})
+                res.status(200).json({success: 'The user has been unfollowed successfully'})
+            }
+        } catch {
+            res.status(500).json({errors: [{msg: 'There has been an error reaching the database'}]})
+        }
+    })
+]
+exports.getFollowing = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        try {
+            const user = jwt.decode(req.headers.authorization.split(' ')[1])
+            const users = await User.find({followed: user.id}).sort({_id: 1})
+            let [idArr, usernameArr, profilePicArr] = []
+            for (i = 0; i < users.length; i++) {
+                idArr.push(users[i]._id)
+                usernameArr.push(users[i].username)
+                profilePicArr.push(users[i].profilePic)
+            }
+            res.status(200).json({id: idArr, username: usernameArr, profilePic: profilePicArr})
+        } catch {
+            res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
+        }
+    })
+]
+exports.getFollowed = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        try {
+            const user = jwt.decode(req.headers.authorization.split(' ')[1])
+            const users = await User.find({following: user.id})
+            let [idArr, usernameArr, profilePicArr] = []
+            for (i = 0; i < users.length; i++) {
+                idArr.push(users[i]._id)
+                usernameArr.push(users[i].username)
+                profilePicArr.push(users[i].profilePic)
+            }
+            res.status(200).json({id: idArr, username: usernameArr, profilePic: profilePicArr})
+        } catch {
+            res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
+        }
+    })
+]
