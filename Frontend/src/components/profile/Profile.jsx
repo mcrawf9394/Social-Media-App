@@ -20,7 +20,7 @@ function Profile () {
                 const request = await fetch(info + `/api/users/${params.userId}`, {
                     mode: 'cors',
                     method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
+                    headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
                 })
                 if (request.status === 404) {
                     navigate('/')

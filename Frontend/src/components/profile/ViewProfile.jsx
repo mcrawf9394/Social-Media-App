@@ -24,6 +24,9 @@ function ViewProfile () {
                         setErrors(response.errors)
                     } else {
                         setProfile({username: response.username, bio: response.bio, followed: response.followed ,following: response.following})
+                        if (response.isFollowed === true) {
+                            setFollow('Unfollow')
+                        }
                     }
                 }
             } catch {

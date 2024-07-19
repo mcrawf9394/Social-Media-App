@@ -25,7 +25,7 @@ const Router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'currentuser/:userId', element: <Profile />,children: [{element: <DeleteDialog />}]},
       { path: 'profile/:userId', element: <ViewProfile /> },
-      { path: 'currentuser/:userId/friends', element: <Friends /> },
+      { path: 'currentuser/:userId/following', element: <Friends /> },
       { path: 'post/:postId', element: <SinglePost />},
       { path: 'users', element: <UserList />}
     ]

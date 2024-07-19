@@ -77,7 +77,7 @@ function App() {
       <Route path='/login' element={<Login />}/>
       <Route path='/users' element={<UserList />}/>
       <Route path='/currentuser/:userId' element={<Profile />}/>
-      <Route path='/currentuser/:userId/friends' element={<Friends />}/>
+      <Route path='/currentuser/:userId/following' element={<Friends />}/>
       <Route path='/profile/:userId' element={<ViewProfile />}/>
       <Route path='/signup' element={<SignUp />}/>
       <Route path='/post/:postId' element={<SinglePost />}/>

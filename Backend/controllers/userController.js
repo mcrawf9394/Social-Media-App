@@ -54,11 +54,16 @@ exports.getSingleUser = asyncHandler (async (req, res, next) => {
         if (!user) {
             res.status(404)
         } else {
+            let isFollowed = false
+            let currentUser = jwt.decode(req.headers.authorization.split(' ')[1])
+            if (user.followed.indexOf(currentUser.id) != -1) {
+                isFollowed = true
+            }
             if (user.profilePic === '1') {
-                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed ,following: user.following})
+                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed ,following: user.following, isFollowed: isFollowed})
             } else {
 
-                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed, following: user.following})
+                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed, following: user.following, isFollowed: isFollowed})
             }
         }
     } catch {
@@ -237,16 +242,21 @@ exports.unfollowUser = [
 exports.getFollowing = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req, res, next) => {
+        const user = jwt.decode(req.headers.authorization.split(' ')[1])
         try {
-            const user = jwt.decode(req.headers.authorization.split(' ')[1])
             const users = await User.find({followed: user.id}).sort({_id: 1})
-            let [idArr, usernameArr, profilePicArr] = []
-            for (i = 0; i < users.length; i++) {
-                idArr.push(users[i]._id)
-                usernameArr.push(users[i].username)
-                profilePicArr.push(users[i].profilePic)
+            let arr = []
+            const createObj = (id, username, profilePic) => {
+                return {
+                    id: id,
+                    username: username,
+                    profilePic: profilePic
+                }
             }
-            res.status(200).json({id: idArr, username: usernameArr, profilePic: profilePicArr})
+            for (i = 0; i < users.length; i++) {
+                arr.push(createObj(users[i]._id, users[i].username, users[i].profilePic))
+            }
+            res.status(200).json({users: arr})
         } catch {
             res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
         }
@@ -258,7 +268,9 @@ exports.getFollowed = [
         try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1])
             const users = await User.find({following: user.id})
-            let [idArr, usernameArr, profilePicArr] = []
+            let idArr = []
+            let usernameArr = []
+            let profilePicArr = []
             for (i = 0; i < users.length; i++) {
                 idArr.push(users[i]._id)
                 usernameArr.push(users[i].username)
