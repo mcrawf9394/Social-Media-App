@@ -1,10 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const userController = require('../controllers/userController')
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.json({msg: "hello"})
-});
+const postController = require('../controllers/postsController')
 
 // User Routes
 router.get('/users', userController.getUsers)
@@ -20,5 +17,8 @@ router.put('/users/:userId', userController.updateUser)
 router.delete('/users/:userId', userController.deleteUser)
 router.put('/users/:userId/picture', userController.updateUserPicture)
 // Post Routes
+router.get('/posts', postController.getAllPosts)
+router.get('/posts/:postId', postController.getSinglePost)
+
 
 module.exports = router;

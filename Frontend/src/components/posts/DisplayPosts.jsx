@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Form } from 'react-router-dom'
+import { v4 } from 'uuid'
 import info from '../../info'
 import io from 'socket.io-client'
 function DisplayPosts () {
@@ -10,8 +11,21 @@ function DisplayPosts () {
     const [content, setContent] = useState('')
     useEffect(() => {
         socket.emit('Join-Posts')
+        const getInfo = async () => {
+            try {
+                const getPosts = await fetch(info + '/api/posts', {
+                    mode: 'cors',
+                    method: 'GET'
+                })
+                const posts = await getPosts.json()
+                setPosts(posts.posts)
+            } catch (err) { 
+                console.log(err)
+            }
+        }
+        getInfo()
     }, [])
-    socket.on('Recieve Posts', (Posts) => {
+    socket.on('Recieve-Posts', (Posts) => {
         setPosts(Posts)        
     })
     if (localStorage.getItem('token')) {
@@ -25,31 +39,50 @@ function DisplayPosts () {
                        setPic([{name: reader.result}])
                     }
                 }}/>
-                <button className='text-gray-200' onClick={ click => {
+                <button className='text-gray-200' onClick={click => {
                     click.preventDefault()
-                    const callback = (error) => {
-                        console.error(error)
-                    }
                     if (pic != '') {
-                        socket.emit('Post',localStorage.getItem('token'), content, callback)
+                        socket.emit('Post',localStorage.getItem('token'), content)
+                    } else {
+                        socket.emit('Post',localStorage.getItem('token'), content)
                     }
-                    socket.emit('Post',localStorage.getItem('token'), content, callback, pic)
+                    let getNewPost = async () => {
+                        try {
+                            const getPosts = await fetch(info +'/api/posts', {
+                                mode: 'cors',
+                                method: 'GET'
+                            })
+                            const allPosts = await getPosts.json()
+                            setPosts(allPosts.posts)
+                        } catch {
+                            console.log('There was an issue reaching the server')
+                        }
+                    }
+                    getNewPost
                 }}>Create Post</button>
             </Form>
-            {posts.map((post) => {
-                return <button>
-                    <p>{post.content}</p>
-                </button>
-            })}
+            <div className='grid grid-cols-1 w-10/12 mx-auto'>
+                {posts.map((post) => {
+                    return <button className='' key={v4()} onClick={click => {
+                        click.preventDefault()
+                        navigate(`/post/${post._id}`)
+                    }}>
+                        <p className='bg-gray-400' key={v4()}>{post.content}</p>
+                    </button>
+                })}
+            </div>
         </>
     } else {
-        return <>
+        return <div className='grid grid-cols-1 w-10/12 mx-auto'>
             {posts.map((post) => {
-                  return <button>
-                    
-                  </button>
+                return <button className='' key={v4()} onClick={click => {
+                    click.preventDefault()
+                    navigate(`/post/${post._id}`)
+                }}>
+                    <p className='bg-gray-400' key={v4()}>{post.content}</p>
+                </button>
             })}
-        </>
+        </div>
     }
 }
 export default DisplayPosts
