@@ -58,7 +58,7 @@ function DisplayPosts () {
                             console.log('There was an issue reaching the server')
                         }
                     }
-                    getNewPost
+                    getNewPost()
                 }}>Create Post</button>
             </Form>
             <div className='grid grid-cols-1 w-10/12 mx-auto'>

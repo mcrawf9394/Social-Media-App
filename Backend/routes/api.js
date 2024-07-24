@@ -19,6 +19,7 @@ router.put('/users/:userId/picture', userController.updateUserPicture)
 // Post Routes
 router.get('/posts', postController.getAllPosts)
 router.get('/posts/:postId', postController.getSinglePost)
-
-
+router.delete('/posts/:postId', postController.deletePost)
+router.put('/posts/:postId', postController.updatePost)
+router.put('/posts/:postId/like', postController.likePost)
 module.exports = router;
