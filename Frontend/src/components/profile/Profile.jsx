@@ -12,6 +12,7 @@ function Profile () {
     const [bio, setBio] = useState('')
     const [following, setFollowing] = useState([{}])
     const [followed, setFollowed] = useState([{}])
+    const [file, setFile] = useState('')
     const [profilePic, setProfilePic] = useState([{name: '../../../blank-profile-picture-973460_640.png'}])
     const [errors, setErrors] = useState([{msg: ''}]) 
     useEffect(() => {
@@ -30,6 +31,9 @@ function Profile () {
                     setBio(response.bio)
                     setFollowing(response.following)
                     setFollowed(response.followed)
+                    if (response.profilePic != "1") {
+                        setProfilePic([{name: response.profilePic}])
+                    }
                 }
             } catch {
                 setErrors([{msg: 'There was an error reaching the server'}])
@@ -55,10 +59,26 @@ function Profile () {
                    reader.onloadend = () => {
                        setProfilePic([{name: reader.result}])
                    }   
-                }} id='picture' type='file' accept="image/jpeg"/>
+                   setFile(e.target.files[0])
+                }} id='picture' type='file' accept="image/*"/>
             <button className="text-gray-400" onClick={async click => {
                 click.preventDefault()
+                setErrors([{msg: ''}])
                 try {
+                    if (profilePic != '../../../blank-profile-picture-973460_640.png') {
+                        const formData = new FormData();
+                        formData.append('img', file);
+                        const req = await fetch(info + `/api/users/${params.userId}/picture`, {
+                            mode: 'cors',
+                            method: 'PUT',
+                            headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                            body: formData
+                        })
+                        const res = await req.json()
+                        if (res.errors) {
+                            setErrors([{msg: 'There was an issue uploading this image.'}])
+                        }
+                    }
                     const request = await fetch(info + `/api/users/${params.userId}`,{
                         mode: 'cors',
                         method: 'PUT',
@@ -77,20 +97,7 @@ function Profile () {
                             setErrors(response.errors)
                         }
                     }
-                    if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
-                        const request2 = await fetch(info + `/api/users/${params.userId}/picture`, {
-                            mode: 'cors',
-                            method: 'PUT',
-                            headers: {'Content-Type': 'application/json','Authorization': `Bearer ${localStorage.getItem('token')}`},
-                            body: JSON.stringify({img: profilePic[0].name})
-                        })
-                        const response2 = await request2.json()
-                        if (response2.errors) {
-                            setErrors(response2.errors)
-                        } else {
-                            navigate('/')
-                        }
-                    } else {
+                    if (errors[0].msg === '') {
                         navigate('/')
                     }
                 } catch {

@@ -65,6 +65,7 @@ function DisplayPosts () {
                 {posts.map((post) => {
                     return <button className='' key={v4()} onClick={click => {
                         click.preventDefault()
+                        socket.disconnect()
                         navigate(`/post/${post._id}`)
                     }}>
                         <p className='bg-gray-400' key={v4()}>{post.content}</p>
@@ -77,7 +78,8 @@ function DisplayPosts () {
             {posts.map((post) => {
                 return <button className='' key={v4()} onClick={click => {
                     click.preventDefault()
-                    navigate(`/post/${post._id}`)
+                    socket.disconnect()
+                    navigate(`/login`)
                 }}>
                     <p className='bg-gray-400' key={v4()}>{post.content}</p>
                 </button>

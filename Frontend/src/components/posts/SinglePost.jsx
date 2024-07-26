@@ -10,6 +10,7 @@ function SinglePost () {
     const [canEdit, setCanEdit] = useState(false)
     const [post, setPost] = useState({user: " ", content: "Loading", likes: ["1"]})
     const [isLiked, setIsLiked] = useState(false)
+    const [numLikes, setNumLikes] = useState(0)
     const [thumbsUp, setThumbsUp] = useState('../../../icons8-facebook-like-25.png')
     const [comments, setComments] = useState([{userName: ' ', content: ' '}])
     const [errors, setErrors] = useState([{msg: ''}])
@@ -28,8 +29,12 @@ function SinglePost () {
                 const response = await request.json()
                 setCanEdit(response.canEdit)
                 setPost(response.post)
+                setNumLikes(response.post.likes.length)
                 setComments(response.comments)
                 setIsLiked(response.isLiked)
+                if (response.isLiked) {
+                    setThumbsUp('../../../icons8-facebook-like-25-dark.png')
+                }
             }
         } catch {
             setErrors([{msg: 'There was an error reaching the server'}])
@@ -65,9 +70,11 @@ function SinglePost () {
                             setPost(response.post)
                             if (isLiked === false) {
                                 setIsLiked(true)
-                                setThumbsUp('../../../icons8-facebook-like-25(1).png')
+                                setThumbsUp('../../../icons8-facebook-like-25-dark.png')
+                                setNumLikes(numLikes + 1)
                             } else {
                                 setIsLiked(false)
+                                setNumLikes(numLikes - 1)
                                 setThumbsUp('../../../icons8-facebook-like-25.png')
                             }
                         }
@@ -75,7 +82,7 @@ function SinglePost () {
                         setErrors([{msg: "There was an issue reaching the server"}])
                     }
                 }}>
-                    <h3 className="">{post.likes.length}</h3>
+                    <h3 className="">{numLikes}</h3>
                     <img className="" src={thumbsUp} alt="Thumbs up icon" />
                 </button>
                 <button className="" onClick={async (click) => {
@@ -94,6 +101,7 @@ function SinglePost () {
                                 setErrors([{msg: "There was an error reaching the database"}])
                             }
                         } else {
+                            socket.disconnect()
                             navigate('/')
                         }
                     } catch {
@@ -150,7 +158,7 @@ function SinglePost () {
                             setPost(response.post)
                             if (isLiked === false) {
                                 setIsLiked(true)
-                                setThumbsUp('../../../icons8-facebook-like-25(1).png')
+                                setThumbsUp('../../../icons8-facebook-like-25-dark.png')
                             } else {
                                 setIsLiked(false)
                                 setThumbsUp('../../../icons8-facebook-like-25.png')

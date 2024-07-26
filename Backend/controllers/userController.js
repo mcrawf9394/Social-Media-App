@@ -7,6 +7,7 @@ const User = require('../models/user')
 require('dotenv').config()
 const cloudinary = require('cloudinary').v2
 const uuid = require('uuid').v4
+const fs = require('node:fs')
 cloudinary.config({
     cloud_name: 'dcubikbtn',
     api_key: process.env.API_KEY,
@@ -36,7 +37,7 @@ exports.getUsers = [
                         return {
                             username: profile.username,
                             id: profile._id,
-                            profilePic: "../../blank-profile-picture-973460_640.png"
+                            profilePic: profile.profilePic === '1' ? "../../blank-profile-picture-973460_640.png": profile.profilePic
                         }
                     }
                     arr.push(createNode(users[i]))
@@ -59,12 +60,7 @@ exports.getSingleUser = asyncHandler (async (req, res, next) => {
             if (user.followed.indexOf(currentUser.id) != -1) {
                 isFollowed = true
             }
-            if (user.profilePic === '1') {
-                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed ,following: user.following, isFollowed: isFollowed})
-            } else {
-
-                res.status(200).json({username: user.username, bio: user.bio, followed: user.followed, following: user.following, isFollowed: isFollowed})
-            }
+            res.status(200).json({username: user.username, bio: user.bio, followed: user.followed, following: user.following, isFollowed: isFollowed, profilePic: user.profilePic})
         }
     } catch {
         res.status(500).json({errors: [{msg: "There was an issue reaching the database"}]})
@@ -189,16 +185,19 @@ exports.updateUserPicture = [
     asyncHandler(async (req, res, next) => {
         const picId = uuid()
         try {
-            const response = await cloudinary.uploader.upload(req.body.img, {public_id: picId})
-            if (response.status === 200) {
+            const response = await cloudinary.uploader.upload(req.files[0].path, {public_id: picId})
+            fs.unlink(req.files[0].path, (err) => {
+                if (err) {console.log(err)}
+                else console.log("file deleted")
+            })
+            if (response.url) {
                 let token = req.headers.authorization.split(' ')[1]
                 let user = jwt.decode(token)
-                await User.findByIdAndUpdate(user.id, {profilePic: picId})
+                await User.findByIdAndUpdate(user.id, {profilePic: response.url})
                 res.status(200).json({success: "The user's picture has been updated"})
             } else {
-                let info = await response.json().error.message
-                res.status(500).json({errors: [{msg: info}]})
-            }
+                res.status(500).json({errors: [{msg: "There was an error uploading the image"}]})
+             }
         } catch (error) {
             console.log(error)
             res.status(200).json({errors: [{msg: 'There was an error uploading the image'}]})
