@@ -36,6 +36,12 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const Posts = require('../models/posts');
 const Comments = require('../models/comments')
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+  cloud_name: 'dcubikbtn',
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+})
 io.on('connection', socket => {
   socket.on('Join-Posts', () => {
     socket.join('Posts')
@@ -43,27 +49,30 @@ io.on('connection', socket => {
   socket.on('Join-Post', (postId) => {
     socket.join(postId)
   })
-  socket.on('Post', async (user, content) => {
+  socket.on('Post', async (user, content, photo) => {
     try {
       const postUser = await User.findById(jwt.decode(user).id)
-      // if (photo) {
-      //   const newPost = new Posts({
-      //     user: postUser.username,
-      //     content:content,
-      //     photo: photo,
-      //     likes: 0,
-      //     date: new Date()
-      //   })
-      //   await newPost.save()
-      // } else {
+      if (photo) {
+        
         const newPost = new Posts({
           user: postUser.username,
+          userPhoto: postUser.profilePic,
+          content:content,
+          photo: photo,
+          likes: 0,
+          date: new Date()
+        })
+        await newPost.save()
+      } else {
+        const newPost = new Posts({
+          user: postUser.username,
+          userPhoto: postUser.profilePic,
           content:content,
           likes: [],
           date: new Date()
         })
         await newPost.save()
-      // }
+      }
       let allPosts = await Posts.find().sort({date: -1}).exec()
       socket.to('Posts').emit('Recieve-Posts', allPosts)
     } catch (err) {

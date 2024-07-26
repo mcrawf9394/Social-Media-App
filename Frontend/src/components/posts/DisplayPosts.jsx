@@ -30,9 +30,9 @@ function DisplayPosts () {
     })
     if (localStorage.getItem('token')) {
         return <>
-            <Form className='grid grid-rows-3 w-10/12 justify-center align-center h-40 mx-auto'>
-                <input className='h-8' type="text" value={content} onChange={e => setContent(e.target.value)} required/>
-                <input className='' type="file" onChange={e => {
+            <Form className='grid grid-rows-3 w-10/12 justify-center align-center h-40 mx-auto bg-gray-700 rounded-xl my-5'>
+                <input className='h-8 self-center w-10/12 mx-auto' type="text" value={content} onChange={e => setContent(e.target.value)} required/>
+                <input className='self-center w-10/12 mx-auto' type="file" onChange={e => {
                     const reader = new FileReader()
                     reader.readAsDataURL(e.target.files[0])
                     reader.onloadend = () => {
@@ -63,28 +63,74 @@ function DisplayPosts () {
             </Form>
             <div className='grid grid-cols-1 w-10/12 mx-auto'>
                 {posts.map((post) => {
-                    return <button className='' key={v4()} onClick={click => {
-                        click.preventDefault()
-                        socket.disconnect()
-                        navigate(`/post/${post._id}`)
-                    }}>
-                        <p className='bg-gray-400' key={v4()}>{post.content}</p>
-                    </button>
+                    if (post.photo) {
+                        <div className='grid grid-cols-1 w-10/12 mx-auto'>
+                        {posts.map((post) => {
+                            return <button className='min-h-20 grid grid-rows-7 my-2 bg-gray-400' key={v4()} onClick={click => {
+                                click.preventDefault()
+                                socket.disconnect()
+                                navigate(`/post/${post._id}`)
+                            }}>
+                                <div className='row-span-2 grid grid-cols-4'>
+                                    <img className='h-20 w-20 rounded-full place-self-center'  id='user-profile-picture' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                                    <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
+                                </div>
+                                <img src={post.photo} alt="Photo in post" />
+                                <p className='row-span-3' key={v4()}>{post.content}</p>
+                            </button>
+                        })}
+                    </div>
+                    } else {
+                        return <button className='min-h-20 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
+                            click.preventDefault()
+                            socket.disconnect()
+                            navigate(`/post/${post._id}`)
+                        }}>
+                            <div className='row-span-2 grid grid-cols-4'>
+                                <img className='h-20 w-20 rounded-full place-self-center'  id='user-profile-picture' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                                <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
+                            </div>
+                            <p className='row-span-3' key={v4()}>{post.content}</p>
+                        </button>
+                    }
                 })}
             </div>
         </>
     } else {
         return <div className='grid grid-cols-1 w-10/12 mx-auto'>
-            {posts.map((post) => {
-                return <button className='' key={v4()} onClick={click => {
-                    click.preventDefault()
-                    socket.disconnect()
-                    navigate(`/login`)
-                }}>
-                    <p className='bg-gray-400' key={v4()}>{post.content}</p>
-                </button>
-            })}
-        </div>
+        {posts.map((post) => {
+                    if (post.photo) {
+                        <div className='grid grid-cols-1 w-10/12 mx-auto'>
+                        {posts.map((post) => {
+                            return <button className='min-h-20 grid grid-rows-7 my-2 bg-gray-400' key={v4()} onClick={click => {
+                                click.preventDefault()
+                                socket.disconnect()
+                                navigate(`/login`)
+                            }}>
+                                <div className='row-span-2 grid grid-cols-4'>
+                                    <img className='h-20 w-20 rounded-full place-self-center'  id='user-profile-picture' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                                    <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
+                                </div>
+                                <img src={post.photo} alt="Photo in post" />
+                                <p className='row-span-3' key={v4()}>{post.content}</p>
+                            </button>
+                        })}
+                    </div>
+                    } else {
+                        return <button className='min-h-20 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
+                            click.preventDefault()
+                            socket.disconnect()
+                            navigate(`/login`)
+                        }}>
+                            <div className='row-span-2 grid grid-cols-4'>
+                                <img className='h-20 w-20 rounded-full' id='user-profile-picture' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                                <label className='self-center' htmlFor="user-profile-picture">{post.user}</label>
+                            </div>
+                            <p className='row-span-3' key={v4()}>{post.content}</p>
+                        </button>
+                    }
+                })}
+    </div>
     }
 }
 export default DisplayPosts
