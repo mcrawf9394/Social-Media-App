@@ -47,10 +47,13 @@ function SinglePost () {
     }) 
     if (canEdit === true) {
         return <>
-            <div className="bg-gray-200">
-                <h2 className="">{post.user}</h2>
-                <p className="">{post.content}</p>
-                <button className="" onClick={async click => {
+            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
+                <div className="col-span-2 inline-flex">
+                    <img className='h-20 w-20 rounded-full place-self-center' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                    <h2 className="ml-5 self-center">{post.user}</h2>
+                </div>
+                <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
+                <button className="inline-flex justify-self-end self-center" onClick={async click => {
                     click.preventDefault()
                     try {
                         const request = await fetch (info +`/api/posts/${params.postId}/like`, {
@@ -85,7 +88,7 @@ function SinglePost () {
                     <h3 className="">{numLikes}</h3>
                     <img className="" src={thumbsUp} alt="Thumbs up icon" />
                 </button>
-                <button className="" onClick={async (click) => {
+                <button className="w-7 h-7 self-center" onClick={async (click) => {
                     click.preventDefault()
                     try {
                         const request = await fetch(info + `/api/posts/${params.postId}`, {
@@ -111,8 +114,8 @@ function SinglePost () {
                     <img src="../../../icons8-delete-64.png" alt="Trash Can Icon" />
                 </button>
             </div>
-            <Form className="">
-                <input className="" type="text" required/>
+            <Form className="w-10/12 mx-auto bg-gray-700 grid grid-cols-4">
+                <input className="col-span-3" type="text" required/>
                 <button className="" onClick={async click => {
                     click.preventDefault()
 
@@ -135,10 +138,13 @@ function SinglePost () {
     }
     else {
         return <>
-            <div className="bg-gray-200">
-                <h2 className="">{post.user}</h2>
-                <p className="">{post.content}</p>
-                <button className="" onClick={async click => {
+            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
+            <div className="col-span-2 inline-flex">
+                    <img className='h-20 w-20 rounded-full place-self-center' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                    <h2 className="ml-5 self-center">{post.user}</h2>
+                </div>
+                <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
+                <button className="inline-flex justify-self-end self-center" onClick={async click => {
                     click.preventDefault()
                     try {
                         const request = await fetch (info +`/api/posts/${params.postId}/like`, {
@@ -159,8 +165,10 @@ function SinglePost () {
                             if (isLiked === false) {
                                 setIsLiked(true)
                                 setThumbsUp('../../../icons8-facebook-like-25-dark.png')
+                                setNumLikes(numLikes + 1)
                             } else {
                                 setIsLiked(false)
+                                setNumLikes(numLikes - 1)
                                 setThumbsUp('../../../icons8-facebook-like-25.png')
                             }
                         }
@@ -168,12 +176,12 @@ function SinglePost () {
                         setErrors([{msg: "There was an issue reaching the server"}])
                     }
                 }}>
-                    <h3 className="">{post.likes.length}</h3>
+                    <h3 className="">{numLikes}</h3>
                     <img className="" src={thumbsUp} alt="Thumbs up icon" />
                 </button>
-            </div>
-            <Form className="">
-                <input className="" type="text" required/>
+                </div>
+            <Form className="w-10/12 mx-auto bg-gray-700 grid grid-cols-4">
+                <input className="col-span-3" type="text" required/>
                 <button className="" onClick={async click => {
                     click.preventDefault()
 

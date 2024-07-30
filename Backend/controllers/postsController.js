@@ -4,7 +4,15 @@ const Comments = require('../models/comments')
 const {validationResult, body} = require('express-validator')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
+const uuid = require('uuid').v4
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+  cloud_name: 'dcubikbtn',
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+})
 const asyncHandler = require('express-async-handler')
+const fs = require('node:fs')
 exports.getAllPosts = asyncHandler(async (req, res, next) => {
     try {
         const posts = await Posts.find().sort({date: 1})
@@ -60,6 +68,28 @@ exports.updatePost = [
             } catch {
                 res.status(500).json({errors:[{msg: 'There was an issue reaching the database'}]})
             }
+        }
+    })
+]
+exports.updatePostPicture = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        const picId = uuid()
+        try {
+            const request = cloudinary.uploader.upload(req.files[0].path, {public_id: picId})
+            fs.unlink(req.files[0].path, (err) => {
+                if (err) {console.log(err)}
+                else console.log("file deleted")
+            })
+            if (request.url) {
+                await Posts.findByIdAndUpdate(req.params.postId, {photo: request.url})
+                res.status(200).json({success: "The user's picture has been updated"})
+            } else {
+                res.status(500).json({errors: [{msg: "There was an error uploading the image"}]})
+             }
+        } catch (error) {
+            console.log(error)
+            res.status(200).json({errors: [{msg: 'There was an error uploading the image'}]})
         }
     })
 ]

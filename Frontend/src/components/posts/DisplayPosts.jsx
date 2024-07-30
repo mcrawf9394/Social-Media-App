@@ -7,6 +7,7 @@ function DisplayPosts () {
     const navigate = useNavigate()
     const socket = io(info)
     const [posts, setPosts] = useState([])
+    const [file, setFile] = useState('')
     const [pic, setPic] = useState('')
     const [content, setContent] = useState('')
     useEffect(() => {
@@ -32,17 +33,35 @@ function DisplayPosts () {
         return <>
             <Form className='grid grid-rows-3 w-10/12 justify-center align-center h-40 mx-auto bg-gray-700 rounded-xl my-5'>
                 <input className='h-8 self-center w-10/12 mx-auto' type="text" value={content} onChange={e => setContent(e.target.value)} required/>
-                <input className='self-center w-10/12 mx-auto' type="file" onChange={e => {
+                <input className='self-center w-10/12 mx-auto' type="file" accept='image/*' onChange={e => {
                     const reader = new FileReader()
                     reader.readAsDataURL(e.target.files[0])
                     reader.onloadend = () => {
                        setPic([{name: reader.result}])
                     }
+                    setFile(e.target.files[0])
                 }}/>
                 <button className='text-gray-200' onClick={click => {
                     click.preventDefault()
                     if (pic != '') {
-                        socket.emit('Post',localStorage.getItem('token'), content)
+                        socket.emit('Post',localStorage.getItem('token'), content, async (response) => {
+                            try {
+                                const formData = new FormData();
+                                formData.append('img', file);
+                                const request = await fetch(info + `/api/posts/${response}/picture`, {
+                                    mode: 'cors',
+                                    method: 'PUT',
+                                    headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+                                    body: formData
+                                })
+                                const res = await request.json();
+                                if (res.errors) {
+                                    console.log('There was an error uploading the image.')
+                                }
+                            } catch {
+                                console.log('There was an issue uploading the image')  
+                            }
+                        })
                     } else {
                         socket.emit('Post',localStorage.getItem('token'), content)
                     }
