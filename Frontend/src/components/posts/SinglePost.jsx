@@ -2,20 +2,25 @@ import info from "../../info"
 import {useState, useEffect} from 'react'
 import {useNavigate, Form, useParams} from "react-router-dom"
 import { v4 } from "uuid"
-import { io } from "socket.io-client"
 function SinglePost () {
     const navigate = useNavigate()
-    const socket = io(info)
     const params = useParams()
     const [canEdit, setCanEdit] = useState(false)
     const [post, setPost] = useState({user: " ", content: "Loading", likes: ["1"]})
+    const userImg = (post) => {
+        if (post.userPhoto === '1') {
+            return '../../../blank-profile-picture-973460_640.png'
+        } else {
+            return post.userPhoto
+        }
+    }
     const [isLiked, setIsLiked] = useState(false)
     const [numLikes, setNumLikes] = useState(0)
     const [thumbsUp, setThumbsUp] = useState('../../../icons8-facebook-like-25.png')
     const [comments, setComments] = useState([{userName: ' ', content: ' '}])
+    const [content, setContent] = useState('')
     const [errors, setErrors] = useState([{msg: ''}])
     useEffect(() => {
-        socket.emit('Join-Post', params.postId)
         const getInfo = async () => {
         try {
             const request = await fetch(info + `/api/posts/${params.postId}`, {
@@ -42,14 +47,11 @@ function SinglePost () {
       } 
       getInfo() 
     }, [])
-    socket.on('Recieve-Comments', (Comments) => {
-        setComments(Comments)
-    }) 
     if (canEdit === true) {
         return <>
             <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
                 <div className="col-span-2 inline-flex">
-                    <img className='h-20 w-20 rounded-full place-self-center' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                    <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
                 <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
@@ -104,7 +106,6 @@ function SinglePost () {
                                 setErrors([{msg: "There was an error reaching the database"}])
                             }
                         } else {
-                            socket.disconnect()
                             navigate('/')
                         }
                     } catch {
@@ -115,10 +116,9 @@ function SinglePost () {
                 </button>
             </div>
             <Form className="w-10/12 mx-auto bg-gray-700 grid grid-cols-4">
-                <input className="col-span-3" type="text" required/>
+                <input className="col-span-3" type="text" value={content} onChange={e => {setContent(e.target.value)}}  required/>
                 <button className="" onClick={async click => {
                     click.preventDefault()
-
                 }}>Add Comment</button>
             </Form>
             <ul className="">
@@ -140,7 +140,7 @@ function SinglePost () {
         return <>
             <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
             <div className="col-span-2 inline-flex">
-                    <img className='h-20 w-20 rounded-full place-self-center' src={post.userPhoto} alt={`${post.user}'s profile picture`} />
+                    <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
                 <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
@@ -181,10 +181,14 @@ function SinglePost () {
                 </button>
                 </div>
             <Form className="w-10/12 mx-auto bg-gray-700 grid grid-cols-4">
-                <input className="col-span-3" type="text" required/>
+                <input className="col-span-3" type="text" value={content} onChange={e => {setContent(e.target.value)}} required/>
                 <button className="" onClick={async click => {
                     click.preventDefault()
-
+                    if (!localStorage.getItem('token')) {
+                        navigate('/login')
+                    } else {
+                        
+                    }
                 }}>Add Comment</button>
             </Form>
             <ul className="">

@@ -13,9 +13,29 @@ cloudinary.config({
 })
 const asyncHandler = require('express-async-handler')
 const fs = require('node:fs')
+exports.addPost = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        let userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
+        try {
+            const user = await Users.findById(userId)
+            const newPost = new Posts ({
+                user: user.username,
+                userPhoto: user.profilePic,
+                content: req.body.content,
+                likes: [],
+                date: new Date()
+            })
+            await newPost.save()
+            res.status(200).json({post: newPost._id})
+        } catch {
+            res.status(500).json({errors: [{msg: "There was an error reaching the database"}]})
+        }
+    })
+]
 exports.getAllPosts = asyncHandler(async (req, res, next) => {
     try {
-        const posts = await Posts.find().sort({date: 1})
+        const posts = await Posts.find().sort({date: -1})
         res.status(200).json({posts: posts})
     } catch {
         res.status(500).json({errors:[{msg: 'There was an issue reaching the database'}]})
@@ -76,14 +96,14 @@ exports.updatePostPicture = [
     asyncHandler(async (req, res, next) => {
         const picId = uuid()
         try {
-            const request = cloudinary.uploader.upload(req.files[0].path, {public_id: picId})
+            const request = await cloudinary.uploader.upload(req.files[0].path, {public_id: picId})
             fs.unlink(req.files[0].path, (err) => {
                 if (err) {console.log(err)}
                 else console.log("file deleted")
             })
             if (request.url) {
                 await Posts.findByIdAndUpdate(req.params.postId, {photo: request.url})
-                res.status(200).json({success: "The user's picture has been updated"})
+                res.status(200).json({success: "The post's picture has been updated"})
             } else {
                 res.status(500).json({errors: [{msg: "There was an error uploading the image"}]})
              }
