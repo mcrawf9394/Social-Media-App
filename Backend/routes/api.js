@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const userController = require('../controllers/userController')
 const postController = require('../controllers/postsController')
+const commentController = require('../controllers/commentController')
 const multer = require('multer')
 
 const storage = multer.diskStorage({
@@ -35,4 +36,9 @@ router.delete('/posts/:postId', postController.deletePost)
 router.put('/posts/:postId', postController.updatePost)
 router.put('/posts/:postId/picture', upload.array("img"), postController.updatePostPicture)
 router.put('/posts/:postId/like', postController.likePost)
+// Comment Routes
+router.get('/comments', commentController.getPostComments)
+router.post('/comments', commentController.addComment)
+router.put('/comments/:commentId', commentController.updateComment)
+router.delete('/comments/:commentId', commentController.deleteComment)
 module.exports = router;

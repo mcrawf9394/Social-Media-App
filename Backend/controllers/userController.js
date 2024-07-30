@@ -146,6 +146,12 @@ exports.updateUser = [
     body("username")
         .trim()
         .isLength({min: 1})
+        .custom(async value => {
+            const user = await User.findOne({username: value})
+            if (user != undefined || user != null) {
+                throw new Error('User Already exists')
+            }
+        })
         .escape(),
     body("bio")
         .trim()

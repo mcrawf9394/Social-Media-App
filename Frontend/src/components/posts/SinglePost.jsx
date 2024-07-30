@@ -2,6 +2,13 @@ import info from "../../info"
 import {useState, useEffect} from 'react'
 import {useNavigate, Form, useParams} from "react-router-dom"
 import { v4 } from "uuid"
+function PostImg ({post}) {
+    if (post.photo) {
+        return <img src={post.photo} alt="This is a photo that was included with the post"></img>
+    } else {
+        return <></>
+    }
+}
 function SinglePost () {
     const navigate = useNavigate()
     const params = useParams()
@@ -54,6 +61,7 @@ function SinglePost () {
                     <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
+                <PostImg post={post}/>
                 <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
                 <button className="inline-flex justify-self-end self-center" onClick={async click => {
                     click.preventDefault()
@@ -119,13 +127,43 @@ function SinglePost () {
                 <input className="col-span-3" type="text" value={content} onChange={e => {setContent(e.target.value)}}  required/>
                 <button className="" onClick={async click => {
                     click.preventDefault()
+                    try {
+                        const request = await fetch(info + '/api/comments', {
+                            mode: 'cors',
+                            method: 'POST',
+                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                content: content,
+                                post: params.postId
+                            })
+                        })
+                        if (request.status != 200) {
+                            if (request.status === 401) {
+                                localStorage.clear()
+                                navigate('/login')
+                            } else {
+                                console.log("There was an error reaching the server")
+                            }
+                        } else {
+                            const response = await request.json()
+                            if (response.errors) {
+                                console.log(response.errors)
+                            } else {
+                                let arr = comments
+                                arr.push(response.comment)
+                                setComments(arr)
+                            }
+                        }
+                    } catch {
+                        console.log("There was an error reaching the server")
+                    }
                 }}>Add Comment</button>
             </Form>
             <ul className="">
                 {comments.map(comment => {
                     return <li key={v4()}>
-                        <h4 className="" key={v4()}>{comment.userName}</h4>
-                        <p className="" key={v4()}>{comment.content}</p>
+                        <h4 className="text-white" key={v4()}>{comment.userName}</h4>
+                        <p className="text-white" key={v4()}>{comment.content}</p>
                     </li>
                 })}
             </ul>
@@ -143,6 +181,7 @@ function SinglePost () {
                     <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
+                <PostImg post={post}/>
                 <p className="col-span-2 text-center w-10/12 mx-auto">{post.content}</p>
                 <button className="inline-flex justify-self-end self-center" onClick={async click => {
                     click.preventDefault()
@@ -187,7 +226,36 @@ function SinglePost () {
                     if (!localStorage.getItem('token')) {
                         navigate('/login')
                     } else {
-                        
+                        try {
+                            const request = await fetch(info + '/api/comments', {
+                                mode: 'cors',
+                                method: 'POST',
+                                headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    content: content,
+                                    post: params.postId
+                                })
+                            })
+                            if (request.status != 200) {
+                                if (request.status === 401) {
+                                    localStorage.clear()
+                                    navigate('/login')
+                                } else {
+                                    console.log("There was an error reaching the server")
+                                }
+                            } else {
+                                const response = await request.json()
+                                if (response.errors) {
+                                    console.log(response.errors)
+                                } else {
+                                    let arr = comments
+                                    arr.push(response.comment)
+                                    setComments(arr)
+                                }
+                            }
+                        } catch {
+                            console.log("There was an error reaching the server")
+                        }
                     }
                 }}>Add Comment</button>
             </Form>

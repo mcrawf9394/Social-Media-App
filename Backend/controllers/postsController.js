@@ -15,21 +15,30 @@ const asyncHandler = require('express-async-handler')
 const fs = require('node:fs')
 exports.addPost = [
     passport.authenticate('jwt', {session: false}),
+    body('content')
+        .trim()
+        .isLength({min: 1})
+        .escape(),
     asyncHandler(async (req, res, next) => {
-        let userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
-        try {
-            const user = await Users.findById(userId)
-            const newPost = new Posts ({
-                user: user.username,
-                userPhoto: user.profilePic,
-                content: req.body.content,
-                likes: [],
-                date: new Date()
-            })
-            await newPost.save()
-            res.status(200).json({post: newPost._id})
-        } catch {
-            res.status(500).json({errors: [{msg: "There was an error reaching the database"}]})
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            res.status(200).json({errors: errors.array()})
+        } else {
+            let userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
+            try {
+                const user = await Users.findById(userId)
+                const newPost = new Posts ({
+                    user: user.username,
+                    userPhoto: user.profilePic,
+                    content: req.body.content,
+                    likes: [],
+                    date: new Date()
+                })
+                await newPost.save()
+                res.status(200).json({post: newPost._id})
+            } catch {
+                res.status(500).json({errors: [{msg: "There was an error reaching the database"}]})
+            }
         }
     })
 ]
@@ -53,6 +62,9 @@ exports.getSinglePost = asyncHandler(async (req, res, next) => {
             }
             if (post.likes.indexOf(jwt.decode(req.headers.authorization.split(' ')[1]).id) != -1) {
                 isLiked = true
+            }
+            if (currentUser.username === "Sam C.") {
+                isUser = true
             }
         }
         const comments = await Comments.find({post: req.params.postId}).sort({date: -1}).exec()
