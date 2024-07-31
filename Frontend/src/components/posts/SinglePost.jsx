@@ -149,8 +149,7 @@ function SinglePost () {
                             if (response.errors) {
                                 console.log(response.errors)
                             } else {
-                                let arr = comments
-                                arr.push(response.comment)
+                                let arr = [...comments, response.comment]
                                 setComments(arr)
                             }
                         }
@@ -248,8 +247,7 @@ function SinglePost () {
                                 if (response.errors) {
                                     console.log(response.errors)
                                 } else {
-                                    let arr = comments
-                                    arr.push(response.comment)
+                                    let arr = [...comments, response.comment]
                                     setComments(arr)
                                 }
                             }
@@ -262,8 +260,8 @@ function SinglePost () {
             <ul className="">
                 {comments.map(comment => {
                     return <li key={v4()}>
-                        <h4 className="" key={v4()}>{comment.userName}</h4>
-                        <p className="" key={v4()}>{comment.content}</p>
+                        <h4 className="text-white" key={v4()}>{comment.userName}</h4>
+                        <p className="text-white" key={v4()}>{comment.content}</p>
                     </li>
                 })}
             </ul>

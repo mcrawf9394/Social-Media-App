@@ -16,15 +16,38 @@ function DisplayPosts () {
     const [pic, setPic] = useState('')
     const [content, setContent] = useState('')
     const getInfo = async () => {
-        try {
-            const getPosts = await fetch(info + '/api/posts', {
-                mode: 'cors',
-                method: 'GET'
-            })
-            const posts = await getPosts.json()
-            setPosts(posts.posts)
-        } catch (err) { 
-            console.log(err)
+        if (!localStorage.getItem('token')){
+            try {
+                const getPosts = await fetch(info + '/api/posts', {
+                    mode: 'cors',
+                    method: 'GET'
+                })
+                const posts = await getPosts.json()
+                setPosts(posts.posts)
+            } catch (err) { 
+                console.log(err)
+            }
+        } else {
+            try {
+                const getFeed = await fetch(info + '/api/posts/feed', {
+                    mode: 'cors',
+                    method: 'GET',
+                    headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+                })
+                if (getFeed.status != 200) {
+                    if (getFeed.status === 401) {
+                        localStorage.clear()
+                        navigate('/login')
+                    } else {
+                        console.error("There was an error reaching the database")
+                    }
+                } else {
+                    const posts = await getFeed.json()
+                    setPosts(posts.posts)
+                }
+            } catch (err) {
+                console.error(err)
+            }
         }
     }
     useEffect(() => {

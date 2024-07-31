@@ -28,6 +28,7 @@ exports.addPost = [
             try {
                 const user = await Users.findById(userId)
                 const newPost = new Posts ({
+                    userId: userId,
                     user: user.username,
                     userPhoto: user.profilePic,
                     content: req.body.content,
@@ -50,6 +51,29 @@ exports.getAllPosts = asyncHandler(async (req, res, next) => {
         res.status(500).json({errors:[{msg: 'There was an issue reaching the database'}]})
     }
 })
+exports.getSomePosts = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).id;
+        try {
+            const currentUser = await Users.findById(userId)
+            let arr = []
+            const createObj = (id) => {
+                return {
+                    userId: id
+                }
+            }
+            for (i = 0; i < currentUser.following.length; i++) {
+                arr.push(createObj(currentUser.following[i]));
+            }
+            arr.push(createObj(userId))
+            const posts = await Posts.find({$or : arr}).sort({date: -1})
+            res.status(200).json({posts: posts})
+        } catch {
+            res.status(500).json({errors:[{msg: 'There was an issue reaching the database'}]})
+        }
+    })
+]
 exports.getSinglePost = asyncHandler(async (req, res, next) => {
     try {
         const post = await Posts.findById(req.params.postId)

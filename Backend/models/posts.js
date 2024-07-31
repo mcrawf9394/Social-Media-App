@@ -1,5 +1,6 @@
 const {Schema, model} = require('mongoose')
 const Posts = new Schema ({
+    userId: {type: String, required: true},
     user: {type: String, required: true},
     userPhoto: {type: String, required: true},
     content: {type: String, required: true},

@@ -30,6 +30,7 @@ router.delete('/users/:userId', userController.deleteUser)
 router.put('/users/:userId/picture', upload.array("img"), userController.updateUserPicture)
 // Post Routes
 router.get('/posts', postController.getAllPosts)
+router.get('/posts/feed', postController.getSomePosts)
 router.post('/posts', postController.addPost)
 router.get('/posts/:postId', postController.getSinglePost)
 router.delete('/posts/:postId', postController.deletePost)
