@@ -7,9 +7,12 @@ const asyncHandler = require('express-async-handler')
 exports.getPostComments = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req,res,next) => {
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
         try {
+            const currentUser = await User.findById(userId)
             const comments = await Comments.find({post: req.body.post}).sort({date: -1}).exec()
-            res.status(200).json({comments: comments})
+            let arr = []
+            res.status(200).json({comments: comments, username: currentUser.username})
         } catch {
             res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
         }

@@ -14,6 +14,7 @@ function SinglePost () {
     const params = useParams()
     const [canEdit, setCanEdit] = useState(false)
     const [post, setPost] = useState({user: " ", content: "Loading", likes: ["1"]})
+    const [userName, setUserName] = useState('')
     const userImg = (post) => {
         if (post.userPhoto === '1') {
             return '../../../blank-profile-picture-973460_640.png'
@@ -44,6 +45,7 @@ function SinglePost () {
                 setNumLikes(response.post.likes.length)
                 setComments(response.comments)
                 setIsLiked(response.isLiked)
+                setUserName(response.username)
                 if (response.isLiked) {
                     setThumbsUp('../../../icons8-facebook-like-25-dark.png')
                 }
@@ -149,7 +151,7 @@ function SinglePost () {
                             if (response.errors) {
                                 console.log(response.errors)
                             } else {
-                                let arr = [...comments, response.comment]
+                                let arr = [response.comment, ...comments]
                                 setComments(arr)
                             }
                         }
@@ -158,12 +160,36 @@ function SinglePost () {
                     }
                 }}>Add Comment</button>
             </Form>
-            <ul className="">
+            <ul className="grid grid-cols-1 mt-2 h-48 md:h-64 gap-1 overflow-scroll">
                 {comments.map(comment => {
-                    return <li key={v4()}>
-                        <h4 className="text-white" key={v4()}>{comment.userName}</h4>
-                        <p className="text-white" key={v4()}>{comment.content}</p>
-                    </li>
+                    if (comment.userName === userName) {
+                        return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
+                            <h4 className="" key={v4()}>{comment.userName}</h4>
+                            <p className="" key={v4()}>{comment.content}</p>
+                            <button className="w-7 h-7 self-center" onChange={async (click) => {
+                                click.preventDefault()
+                            }}><img src="../../../icons8-delete-64.png" alt="Trash Can Icon" /></button>
+                            <button className="inline-flex justify-self-end self-center" onClick={async click => {
+                                click.preventDefault()
+                                
+                            }}>
+                                <h3 className="">{numLikes}</h3>
+                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                            </button>
+                        </li>
+                    } else {
+                        return <li className="grid grid-cols-3 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
+                            <h4 className="" key={v4()}>{comment.userName}</h4>
+                            <p className="" key={v4()}>{comment.content}</p>
+                            <button className="inline-flex justify-self-end self-center" onClick={async click => {
+                                click.preventDefault()
+                                
+                            }}>
+                                <h3 className="">{numLikes}</h3>
+                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                            </button>
+                        </li>
+                    }
                 })}
             </ul>
             <ul>
@@ -247,7 +273,7 @@ function SinglePost () {
                                 if (response.errors) {
                                     console.log(response.errors)
                                 } else {
-                                    let arr = [...comments, response.comment]
+                                    let arr = [response.comment, ...comments]
                                     setComments(arr)
                                 }
                             }
@@ -257,12 +283,36 @@ function SinglePost () {
                     }
                 }}>Add Comment</button>
             </Form>
-            <ul className="">
+            <ul className="grid grid-cols-1 mt-2 h-48 md:h-64 gap-1 overflow-scroll">
                 {comments.map(comment => {
-                    return <li key={v4()}>
-                        <h4 className="text-white" key={v4()}>{comment.userName}</h4>
-                        <p className="text-white" key={v4()}>{comment.content}</p>
+                    if (comment.userName === userName) {
+                        return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
+                            <h4 className="" key={v4()}>{comment.userName}</h4>
+                            <p className="" key={v4()}>{comment.content}</p>
+                            <button className="w-7 h-7 self-center" onChange={async (click) => {
+                                click.preventDefault()
+                            }}><img src="../../../icons8-delete-64.png" alt="Trash Can Icon" /></button>
+                            <button className="inline-flex justify-self-end self-center" onClick={async click => {
+                                click.preventDefault()
+                                
+                            }}>
+                                <h3 className="">{numLikes}</h3>
+                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                            </button>
+                        </li>
+                    } else {
+                        return <li className="grid grid-cols-3 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
+                        <h4 className="" key={v4()}>{comment.userName}</h4>
+                        <p className="" key={v4()}>{comment.content}</p>
+                        <button className="inline-flex justify-self-end self-center" onClick={async click => {
+                                click.preventDefault()
+                                
+                            }}>
+                                <h3 className="">{numLikes}</h3>
+                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                            </button>
                     </li>
+                    }
                 })}
             </ul>
             <ul>

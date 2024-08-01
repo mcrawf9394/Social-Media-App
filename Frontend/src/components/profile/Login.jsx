@@ -46,7 +46,30 @@ function Login () {
                 }
             })}
         </ul>
-        <div className="w-10/12 mx-auto grid grid-rows-2">
+        <div className="w-10/12 mx-auto grid grid-rows-3">
+            <button className="text-gray-400" onClick={async (click) => {
+                click.preventDefault()
+                try {
+                    const request = await fetch(info + '/api/users/login', {
+                        mode: 'cors',
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            username: "Guest",
+                            password: "password"
+                        })
+                    })
+                    const response = await request.json()
+                    if (response.errors) {
+                        setErrors(response.errors)
+                    } else {
+                        localStorage.setItem('token', response.token)
+                        navigate('/')
+                    }
+                } catch {
+                    setErrors([{msg: "There was an error reaching the server"}])
+                }
+            }}>Sign in as Guest</button>
             <h1 className="text-gray-400 text-center">Don't have an account? Sign up!</h1>
             <button className="text-gray-400 justify-self-center" onClick={click => {
                 click.preventDefault()

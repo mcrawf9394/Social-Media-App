@@ -10,6 +10,7 @@ function Profile () {
     const [showModal, setShowModal] = useState(false)
     const [user, setUser] = useState('')
     const [bio, setBio] = useState('')
+    const [cannotEdit, setCannotEdit] = useState(false)
     const [following, setFollowing] = useState([{}])
     const [followed, setFollowed] = useState([{}])
     const [file, setFile] = useState('')
@@ -27,6 +28,9 @@ function Profile () {
                     navigate('/')
                 } else {
                     const response = await request.json()
+                    if (response.username === "Guest") {
+                        setCannotEdit(true)
+                    }
                     setUser(response.username)
                     setBio(response.bio)
                     setFollowing(response.following)
@@ -64,49 +68,57 @@ function Profile () {
             <button className="text-gray-400" onClick={async click => {
                 click.preventDefault()
                 setErrors([{msg: ''}])
-                try {
-                    if (profilePic != '../../../blank-profile-picture-973460_640.png') {
-                        const formData = new FormData();
-                        formData.append('img', file);
-                        const req = await fetch(info + `/api/users/${params.userId}/picture`, {
+                if (cannotEdit === true) {
+                    setErrors([{msg: "Please do not edit the guest profile, to use these features create your own account"}])
+                } else {   
+                    try {
+                        if (profilePic != '../../../blank-profile-picture-973460_640.png') {
+                            const formData = new FormData();
+                            formData.append('img', file);
+                            const req = await fetch(info + `/api/users/${params.userId}/picture`, {
+                                mode: 'cors',
+                                method: 'PUT',
+                                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                                body: formData
+                            })
+                            const res = await req.json()
+                            if (res.errors) {
+                                setErrors([{msg: 'There was an issue uploading this image.'}])
+                            }
+                        }
+                        const request = await fetch(info + `/api/users/${params.userId}`,{
                             mode: 'cors',
                             method: 'PUT',
-                            headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
-                            body: formData
+                            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                            body: JSON.stringify({
+                                username: user,
+                                bio: bio
+                            })
                         })
-                        const res = await req.json()
-                        if (res.errors) {
-                            setErrors([{msg: 'There was an issue uploading this image.'}])
+                        if (request.status === 404) {
+                            localStorage.clear()
+                            navigate('/login')
+                        } else {
+                            const response = await request.json()
+                            if (response.errrors) {
+                                setErrors(response.errors)
+                            }
                         }
-                    }
-                    const request = await fetch(info + `/api/users/${params.userId}`,{
-                        mode: 'cors',
-                        method: 'PUT',
-                        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}`},
-                        body: JSON.stringify({
-                            username: user,
-                            bio: bio
-                        })
-                    })
-                    if (request.status === 404) {
-                        localStorage.clear()
-                        navigate('/login')
-                    } else {
-                        const response = await request.json()
-                        if (response.errrors) {
-                            setErrors(response.errors)
+                        if (errors[0].msg === '') {
+                            navigate('/')
                         }
+                    } catch {
+                        setErrors([{msg: 'There was an error reaching the server'}])
                     }
-                    if (errors[0].msg === '') {
-                        navigate('/')
-                    }
-                } catch {
-                    setErrors([{msg: 'There was an error reaching the server'}])
                 }
             }}>Submit</button>
             <button className="text-gray-400" onClick={(click) => {
                 click.preventDefault()
-                setShowModal(true)
+                if (cannotEdit === true) {
+                    setErrors([{msg: "Please do not edit the guest profile, to use these features create your own account"}])
+                } else {
+                    setShowModal(true)
+                }
             }}>Delete</button>
             <button className="text-gray-400" onClick={click => {
                 click.preventDefault()

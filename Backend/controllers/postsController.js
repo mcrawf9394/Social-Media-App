@@ -79,20 +79,18 @@ exports.getSinglePost = asyncHandler(async (req, res, next) => {
         const post = await Posts.findById(req.params.postId)
         let isUser = false
         let isLiked = false
-        if (req.headers.authorization) {
-            const currentUser = await Users.findById(jwt.decode(req.headers.authorization.split(' ')[1]).id)
-            if (currentUser.username === post.user) {
-                isUser = true
-            }
-            if (post.likes.indexOf(jwt.decode(req.headers.authorization.split(' ')[1]).id) != -1) {
-                isLiked = true
-            }
-            if (currentUser.username === "Sam C.") {
-                isUser = true
-            }
+        const currentUser = await Users.findById(jwt.decode(req.headers.authorization.split(' ')[1]).id)
+        if (currentUser.username === post.user) {
+            isUser = true
+        }
+        if (post.likes.indexOf(jwt.decode(req.headers.authorization.split(' ')[1]).id) != -1) {
+            isLiked = true
+        }
+        if (currentUser.username === "Sam C.") {
+            isUser = true
         }
         const comments = await Comments.find({post: req.params.postId}).sort({date: -1}).exec()
-        res.status(200).json({post: post, comments: comments, canEdit: isUser, isLiked: isLiked})
+        res.status(200).json({post: post, comments: comments, username: currentUser.username, canEdit: isUser, isLiked: isLiked})
     } catch (err) {
         console.log(err)
         res.status(500).json({errors:[{msg: 'There was an issue reaching the database'}]})
