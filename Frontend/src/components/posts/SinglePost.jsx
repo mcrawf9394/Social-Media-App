@@ -4,7 +4,7 @@ import {useNavigate, Form, useParams} from "react-router-dom"
 import { v4 } from "uuid"
 function PostImg ({post}) {
     if (post.photo) {
-        return <img src={post.photo} alt="This is a photo that was included with the post"></img>
+        return <img className='col-span-2 w-8/12 mx-auto md:h-24 md:w-4/12' src={post.photo} alt="This is a photo that was included with the post"></img>
     } else {
         return <></>
     }
@@ -25,7 +25,7 @@ function SinglePost () {
     const [isLiked, setIsLiked] = useState(false)
     const [numLikes, setNumLikes] = useState(0)
     const [thumbsUp, setThumbsUp] = useState('../../../icons8-facebook-like-25.png')
-    const [comments, setComments] = useState([{userName: ' ', content: ' '}])
+    const [comments, setComments] = useState([{userName: ' ', content: ' ', likes: []}])
     const [content, setContent] = useState('')
     const [errors, setErrors] = useState([{msg: ''}])
     useEffect(() => {
@@ -58,7 +58,7 @@ function SinglePost () {
     }, [])
     if (canEdit === true) {
         return <>
-            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
+            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto md:h-80">
                 <div className="col-span-2 inline-flex">
                     <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
@@ -162,19 +162,73 @@ function SinglePost () {
             </Form>
             <ul className="grid grid-cols-1 mt-2 h-48 md:h-64 gap-1 overflow-scroll">
                 {comments.map(comment => {
+                    let photo = '../../../icons8-facebook-like-25.png'
+                    if (comment.likes.indexOf(userName) != -1) {
+                        photo = '../../../icons8-facebook-like-25-dark.png'
+                    }
                     if (comment.userName === userName) {
                         return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
                             <h4 className="" key={v4()}>{comment.userName}</h4>
                             <p className="" key={v4()}>{comment.content}</p>
-                            <button className="w-7 h-7 self-center" onChange={async (click) => {
+                            <button className="w-10 h-10 self-center" onClick={async (click) => {
                                 click.preventDefault()
-                            }}><img src="../../../icons8-delete-64.png" alt="Trash Can Icon" /></button>
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}`, {
+                                        mode: 'cors',
+                                        method: 'DELETE',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    const res = await request.json()
+                                    if (res.errors) {
+                                        console.log("There was an issue deleting the comment")
+                                    } else {
+                                        let arr = comments 
+                                        arr.splice(comments.indexOf(comment), 1)
+                                        if (arr.length === 0) {
+                                            setComments([])
+                                        } else {
+                                            setComments(arr)
+                                        }
+                                    }
+                                } catch {
+                                    console.log("There was an issue deleting the comment")
+                                }
+                            }}>
+                                <img className="w-7 h-7" src="../../../icons8-delete-64.png" alt="Trash Can Icon" />
+                            </button>
                             <button className="inline-flex justify-self-end self-center" onClick={async click => {
                                 click.preventDefault()
-                                
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}/like`, {
+                                        mode: 'cors',
+                                        method: 'PUT',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    if (request.status != 200) {
+                                        console.log("There was an issue reaching the database")
+                                    } else {
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method: 'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There was an issue reaching the database")
+                                        } else {
+                                            const res = await req.json()
+                                            setComments(res.comments)
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.log(err)
+                                }
                             }}>
-                                <h3 className="">{numLikes}</h3>
-                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                                <h3 className="">{comment.likes.length}</h3>
+                                <img className="" src={photo} alt="Thumbs up icon" />
                             </button>
                         </li>
                     } else {
@@ -183,10 +237,37 @@ function SinglePost () {
                             <p className="" key={v4()}>{comment.content}</p>
                             <button className="inline-flex justify-self-end self-center" onClick={async click => {
                                 click.preventDefault()
-                                
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}/like`, {
+                                        mode: 'cors',
+                                        method: 'PUT',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    if (request.status != 200) {
+                                        console.log("There was an issue reaching the database")
+                                    } else {
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method: 'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There was an issue reaching the database")
+                                        } else {
+                                            const res = await req.json()
+                                            setComments(res.comments)
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.log(err)
+                                }
                             }}>
-                                <h3 className="">{numLikes}</h3>
-                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                                <h3 className="">{comment.likes.length}</h3>
+                                <img className="" src={photo} alt="Thumbs up icon" />
                             </button>
                         </li>
                     }
@@ -285,19 +366,71 @@ function SinglePost () {
             </Form>
             <ul className="grid grid-cols-1 mt-2 h-48 md:h-64 gap-1 overflow-scroll">
                 {comments.map(comment => {
+                      let photo = '../../../icons8-facebook-like-25.png'
+                      if (comment.likes.indexOf(userName) != -1) {
+                          photo = '../../../icons8-facebook-like-25-dark.png'
+                      }
                     if (comment.userName === userName) {
                         return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
                             <h4 className="" key={v4()}>{comment.userName}</h4>
                             <p className="" key={v4()}>{comment.content}</p>
-                            <button className="w-7 h-7 self-center" onChange={async (click) => {
+                            <button className="w-7 h-7 self-center" onClick={async (click) => {
                                 click.preventDefault()
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}`, {
+                                        mode: 'cors',
+                                        method: 'DELETE',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    const res = await request.json()
+                                    if (res.errors) {
+                                        console.log("There was an issue deleting the comment")
+                                    } else {
+                                        let arr = comments 
+                                        arr.splice(comments.indexOf(comment), 1)
+                                        if (arr.length === 0) {
+                                            setComments([])
+                                        } else {
+                                            setComments(arr)
+                                        }
+                                    }
+                                } catch {
+                                    console.log("There was an issue deleting the comment")
+                                }
                             }}><img src="../../../icons8-delete-64.png" alt="Trash Can Icon" /></button>
                             <button className="inline-flex justify-self-end self-center" onClick={async click => {
                                 click.preventDefault()
-                                
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}/like`, {
+                                        mode: 'cors',
+                                        method: 'PUT',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    if (request.status != 200) {
+                                        console.log("There was an issue reaching the database")
+                                    } else {
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method: 'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There was an issue reaching the database")
+                                        } else {
+                                            const res = await req.json()
+                                            setComments(res.comments)
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.log(err)
+                                }
                             }}>
-                                <h3 className="">{numLikes}</h3>
-                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                                <h3 className="">{comment.likes.length}</h3>
+                                <img className="" src={photo} alt="Thumbs up icon" />
                             </button>
                         </li>
                     } else {
@@ -306,10 +439,37 @@ function SinglePost () {
                         <p className="" key={v4()}>{comment.content}</p>
                         <button className="inline-flex justify-self-end self-center" onClick={async click => {
                                 click.preventDefault()
-                                
+                                try {
+                                    const request = await fetch(info + `/api/comments/${comment._id}/like`, {
+                                        mode: 'cors',
+                                        method: 'PUT',
+                                        headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
+                                    })
+                                    if (request.status != 200) {
+                                        console.log("There was an issue reaching the database")
+                                    } else {
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method: 'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There was an issue reaching the database")
+                                        } else {
+                                            const res = await req.json()
+                                            setComments(res.comments)
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.log(err)
+                                }
                             }}>
-                                <h3 className="">{numLikes}</h3>
-                                <img className="" src={thumbsUp} alt="Thumbs up icon" />
+                                <h3 className="">{comment.likes.length}</h3>
+                                <img className="" src={photo} alt="Thumbs up icon" />
                             </button>
                     </li>
                     }

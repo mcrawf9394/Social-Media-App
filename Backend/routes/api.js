@@ -38,8 +38,9 @@ router.put('/posts/:postId', postController.updatePost)
 router.put('/posts/:postId/picture', upload.array("img"), postController.updatePostPicture)
 router.put('/posts/:postId/like', postController.likePost)
 // Comment Routes
-router.get('/comments', commentController.getPostComments)
+router.put('/comments', commentController.getPostComments)
 router.post('/comments', commentController.addComment)
 router.put('/comments/:commentId', commentController.updateComment)
 router.delete('/comments/:commentId', commentController.deleteComment)
+router.put('/comments/:commentId/like', commentController.updateLikesComment)
 module.exports = router;

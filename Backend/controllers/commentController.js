@@ -7,12 +7,9 @@ const asyncHandler = require('express-async-handler')
 exports.getPostComments = [
     passport.authenticate('jwt', {session: false}),
     asyncHandler(async (req,res,next) => {
-        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
         try {
-            const currentUser = await User.findById(userId)
             const comments = await Comments.find({post: req.body.post}).sort({date: -1}).exec()
-            let arr = []
-            res.status(200).json({comments: comments, username: currentUser.username})
+            res.status(200).json({comments: comments, username: req.body.username})
         } catch {
             res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
         }
@@ -53,6 +50,25 @@ exports.updateComment = [
     asyncHandler(async (req,res,next) => {
         try {
             
+        } catch {
+            res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
+        }
+    })
+]
+exports.updateLikesComment = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req,res,next) => {
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).id
+        try {
+            const currentUser = await User.findById(userId)
+            const currentComment = await Comments.findById(req.params.commentId)
+            let comment
+            if (currentComment.likes.indexOf(currentUser.username) === -1) {
+                comment = await Comments.findByIdAndUpdate(req.params.commentId, {$push: {likes: currentUser.username}})
+            } else {
+                comment = await Comments.findByIdAndUpdate(req.params.commentId, {$pull: {likes: currentUser.username}})
+            }
+            res.status(200).json({comment: comment})
         } catch {
             res.status(500).json({errors: [{msg: 'There was an issue reaching the database'}]})
         }
