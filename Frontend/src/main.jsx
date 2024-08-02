@@ -13,7 +13,7 @@ import SinglePost from './components/posts/SinglePost.jsx'
 import UserList from './components/profile/UserList.jsx'
 import './stylesheet/index.css'
 import DeleteDialog from './components/profile/DeleteDialog.jsx'
-
+import DeleteOtherUsers from './components/Admin/DeleteOtherUsers.jsx'
 const Router = createBrowserRouter([
   {
     path: '*',
@@ -27,7 +27,8 @@ const Router = createBrowserRouter([
       { path: 'profile/:userId', element: <ViewProfile /> },
       { path: 'currentuser/:userId/following', element: <Friends /> },
       { path: 'post/:postId', element: <SinglePost />},
-      { path: 'users', element: <UserList />}
+      { path: 'users', element: <UserList />},
+      { path: 'admin/deleteusers', element: <DeleteOtherUsers />}
     ]
   }
 ])

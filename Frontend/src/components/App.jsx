@@ -7,6 +7,7 @@ import Friends from './profile/Friends'
 import ViewProfile from './profile/ViewProfile'
 import SignUp from './profile/Sign-up'
 import SinglePost from './posts/SinglePost'
+import DeleteOtherUsers from './Admin/DeleteOtherUsers'
 import info from '../info'
 function App() {
   const navigate = useNavigate()
@@ -81,6 +82,7 @@ function App() {
       <Route path='/profile/:userId' element={<ViewProfile />}/>
       <Route path='/signup' element={<SignUp />}/>
       <Route path='/post/:postId' element={<SinglePost />}/>
+      <Route path='/admin/deleteusers' element={<DeleteOtherUsers />}/>
     </Routes>
     <footer className='absolute bottom-0 text-gray-400 w-full text-center'>Made by Sam Crawford - <a target="_blank" href="https://icons8.com/icon/122808/people-working-together">Talking</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a></footer>
     </>

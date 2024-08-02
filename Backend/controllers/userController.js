@@ -4,6 +4,8 @@ const passport = require('passport')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const Posts = require('../models/posts')
+const Comments = require('../models/comments')
 require('dotenv').config()
 const cloudinary = require('cloudinary').v2
 const uuid = require('uuid').v4
@@ -20,6 +22,23 @@ exports.auth = [
         let user = jwt.decode(token)
         res.status(200).json({id: user.id, msg: "Authorized"})
     }
+]
+exports.isAdmin = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        let token = req.headers.authorization.split(' ')[1]
+        let user = jwt.decode(token)
+        try {
+            const currentUser = await User.findById(user.id)
+            if (currentUser.username != "Sam C.") {
+                res.status(200).json({authorized: false})
+            } else {
+                res.status(200).json({authorized: true})
+            }
+        } catch {
+            res.status(500).json({errors: "There was an issue reaching the database"})
+        }
+    })
 ]
 exports.getUsers = [
     passport.authenticate('jwt', {session: false}), 
@@ -179,7 +198,20 @@ exports.deleteUser = [
         try {
             let token = req.headers.authorization.split(' ')[1]
             let user = jwt.decode(token)
+            await Posts.deleteMany({userId: user.id})
             await User.findByIdAndDelete(user.id)
+            res.status(200).json({success: 'The user was deleted successfully'})
+        } catch {
+            res.status(500).json({errors: [{msg: 'There was an error accessing the database'}]})
+        }
+    })
+]
+exports.adminDeleteUser = [
+    passport.authenticate('jwt', {session: false}),
+    asyncHandler(async (req, res, next) => {
+        try {
+            await Posts.deleteMany({userId: req.params.userId})
+            await User.findByIdAndDelete(req.params.userId)
             res.status(200).json({success: 'The user was deleted successfully'})
         } catch {
             res.status(500).json({errors: [{msg: 'There was an error accessing the database'}]})
