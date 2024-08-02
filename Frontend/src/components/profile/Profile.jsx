@@ -72,7 +72,7 @@ function Profile () {
                     setErrors([{msg: "Please do not edit the guest profile, to use these features create your own account"}])
                 } else {   
                     try {
-                        if (profilePic != '../../../blank-profile-picture-973460_640.png') {
+                        if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
                             const formData = new FormData();
                             formData.append('img', file);
                             const req = await fetch(info + `/api/users/${params.userId}/picture`, {
