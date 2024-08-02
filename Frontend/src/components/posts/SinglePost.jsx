@@ -4,7 +4,7 @@ import {useNavigate, Form, useParams} from "react-router-dom"
 import { v4 } from "uuid"
 function PostImg ({post}) {
     if (post.photo) {
-        return <img className='col-span-2 w-8/12 mx-auto md:h-24 md:w-4/12' src={post.photo} alt="This is a photo that was included with the post"></img>
+        return <img className='col-span-2 row-span-2 w-8/12 md:w-2/12 mx-auto object-scale-down' src={post.photo} alt="This is a photo that was included with the post"></img>
     } else {
         return <></>
     }
@@ -58,9 +58,9 @@ function SinglePost () {
     }, [])
     if (canEdit === true) {
         return <>
-            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto md:h-80">
+            <div className="bg-gray-200 my-5 grid grid-rows-5 grid-cols-2 gap-y-5 w-10/12 mx-auto min-h-30 max-h-72">
                 <div className="col-span-2 inline-flex">
-                    <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
+                    <img className='h-16 w-16 rounded-full' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
                 <PostImg post={post}/>
@@ -166,7 +166,7 @@ function SinglePost () {
                     if (comment.likes.indexOf(userName) != -1) {
                         photo = '../../../icons8-facebook-like-25-dark.png'
                     }
-                    if (comment.userName === userName) {
+                    if (comment.userName === userName || userName === "Sam C.") {
                         return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
                             <h4 className="" key={v4()}>{comment.userName}</h4>
                             <p className="" key={v4()}>{comment.content}</p>
@@ -182,12 +182,20 @@ function SinglePost () {
                                     if (res.errors) {
                                         console.log("There was an issue deleting the comment")
                                     } else {
-                                        let arr = comments 
-                                        arr.splice(comments.indexOf(comment), 1)
-                                        if (arr.length === 0) {
-                                            setComments([])
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method:'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There has been an issue retrieving the posts")
                                         } else {
-                                            setComments(arr)
+                                            const res = await req.json()
+                                            setComments(res.comments)
                                         }
                                     }
                                 } catch {
@@ -282,9 +290,9 @@ function SinglePost () {
     }
     else {
         return <>
-            <div className="bg-gray-200 my-5 grid grid-rows-3 grid-cols-2 gap-y-5 w-10/12 mx-auto">
+            <div className="bg-gray-200 my-5 grid grid-rows-5 grid-cols-2 gap-y-5 w-10/12 mx-auto min-h-30 max-h-72 md:h-80">
             <div className="col-span-2 inline-flex">
-                    <img className='h-20 w-20 rounded-full place-self-center' src={userImg(post)} alt={`${post.user}'s profile picture`} />
+                    <img className='h-16 w-16 rounded-full' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                     <h2 className="ml-5 self-center">{post.user}</h2>
                 </div>
                 <PostImg post={post}/>
@@ -370,7 +378,7 @@ function SinglePost () {
                       if (comment.likes.indexOf(userName) != -1) {
                           photo = '../../../icons8-facebook-like-25-dark.png'
                       }
-                    if (comment.userName === userName) {
+                    if (comment.userName === userName || userName === "Sam C.") {
                         return <li className="grid grid-cols-4 min-h-20 bg-gray-200 w-10/12 mx-auto" key={v4()}>
                             <h4 className="" key={v4()}>{comment.userName}</h4>
                             <p className="" key={v4()}>{comment.content}</p>
@@ -386,12 +394,20 @@ function SinglePost () {
                                     if (res.errors) {
                                         console.log("There was an issue deleting the comment")
                                     } else {
-                                        let arr = comments 
-                                        arr.splice(comments.indexOf(comment), 1)
-                                        if (arr.length === 0) {
-                                            setComments([])
+                                        const req = await fetch(info + '/api/comments', {
+                                            mode: 'cors',
+                                            method:'PUT',
+                                            headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json"},
+                                            body: JSON.stringify({
+                                                post: params.postId,
+                                                username: userName
+                                            })
+                                        })
+                                        if (req.status != 200) {
+                                            console.log("There has been an issue retrieving the posts")
                                         } else {
-                                            setComments(arr)
+                                            const res = await req.json()
+                                            setComments(res.comments)
                                         }
                                     }
                                 } catch {

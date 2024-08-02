@@ -109,27 +109,27 @@ function DisplayPosts () {
             <div className='grid grid-cols-1 w-10/12 mx-auto overflow-scroll h-96 md:h-128'>
                 {posts.map((post) => {
                     if (post.photo) {
-                            return <button className='h-30 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
+                            return <button className='min-h-30 max-h-80 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
                                 click.preventDefault()
                                 navigate(`/post/${post._id}`)
                             }}>
                                 <div className='grid grid-cols-4'>
-                                    <img className='h-15 w-15 md:h-20 md:w-20 rounded-full place-self-center'  id='user-profile-picture' src={userImg(post)} alt={`${post.user}'s profile picture`} />
+                                    <img className='h-20 w-20 rounded-full place-self-center'  id='user-profile-picture' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                                     <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
                                 </div>
-                                <img className='row-span-2 w-8/12 mx-auto' src={post.photo} alt="Photo in post" />
-                                <p className='row-span-2' key={v4()}>{post.content}</p>
+                                <img className='row-span-3 w-8/12 md:w-2/12 object-scale-down mx-auto self-center' src={post.photo} alt="Photo in post" />
+                                <p className='row-span-1' key={v4()}>{post.content}</p>
                             </button>
                     } else {
-                        return <button className='min-h-30 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
+                        return <button className='min-h-30 max-h-80 grid grid-rows-3 my-2 bg-gray-400' key={v4()} onClick={click => {
                             click.preventDefault()
                             navigate(`/post/${post._id}`)
                         }}>
-                            <div className='row-span-2 grid grid-cols-4'>
+                            <div className='row-span-1 grid grid-cols-4'>
                                 <img className='h-15 md:h-20 w-15 md:w-20 rounded-full place-self-center'  id='user-profile-picture' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                                 <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
                             </div>
-                            <p className='row-span-3' key={v4()}>{post.content}</p>
+                            <p className='row-span-2' key={v4()}>{post.content}</p>
                         </button>
                     }
                 })}
@@ -141,21 +141,21 @@ function DisplayPosts () {
                     if (post.photo) {
                         <div className='grid grid-cols-1 w-10/12 mx-auto'>
                         {posts.map((post) => {
-                            return <button className='min-h-30 grid grid-rows-7 my-2 bg-gray-400' key={v4()} onClick={click => {
+                            return <button className='min-h-30 max-h-80  grid grid-rows-7 my-2 bg-gray-400' key={v4()} onClick={click => {
                                 click.preventDefault()
                                 navigate(`/login`)
                             }}>
-                                <div className='row-span-2 grid grid-cols-4'>
+                                <div className='row-span-2 grid grid-cols-5'>
                                     <img className='h-15 w-15 md:h-20 md:w-20 rounded-full place-self-center'  id='user-profile-picture' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                                     <label className='self-center justify-self-start' htmlFor="user-profile-picture">{post.user}</label>
                                 </div>
-                                <img src={post.photo} alt="Photo in post" />
-                                <p className='row-span-3' key={v4()}>{post.content}</p>
+                                <img className='row-span-3 w-8/12 md:w-2/12 object-scale-down mx-auto self-center' src={post.photo} alt="Photo in post" />
+                                <p className='' key={v4()}>{post.content}</p>
                             </button>
                         })}
                     </div>
                     } else {
-                        return <button className='min-h-30 grid grid-rows-5 my-2 bg-gray-400' key={v4()} onClick={click => {
+                        return <button className='min-h-30 max-h-80 grid grid-rows-3 my-2 bg-gray-400' key={v4()} onClick={click => {
                             click.preventDefault()
                             navigate(`/login`)
                         }}>
@@ -163,7 +163,7 @@ function DisplayPosts () {
                                 <img className='h-15 w-15 md:h-20 md:w-20 rounded-full' id='user-profile-picture' src={userImg(post)} alt={`${post.user}'s profile picture`} />
                                 <label className='self-center' htmlFor="user-profile-picture">{post.user}</label>
                             </div>
-                            <p className='row-span-3' key={v4()}>{post.content}</p>
+                            <p className='row-span-2' key={v4()}>{post.content}</p>
                         </button>
                     }
                 })}
