@@ -55,16 +55,8 @@ function DisplayPosts () {
     }, [])
     if (localStorage.getItem('token')) {
         return <>
-            <Form className='grid grid-rows-3 w-10/12 justify-center align-center h-40 mx-auto bg-gray-700 rounded-xl my-5'>
+            <Form className='grid grid-rows-2 w-10/12 justify-center align-center h-40 mx-auto bg-gray-700 rounded-xl my-5'>
                 <input className='h-8 self-center w-10/12 mx-auto' type="text" value={content} onChange={e => setContent(e.target.value)} required/>
-                <input className='self-center w-10/12 mx-auto' type="file" accept='image/*' onChange={e => {
-                    const reader = new FileReader()
-                    reader.readAsDataURL(e.target.files[0])
-                    reader.onloadend = () => {
-                       setPic([{name: reader.result}])
-                    }
-                    setFile(e.target.files[0])
-                }}/>
                 <button className='text-gray-200' onClick={async click => {
                     click.preventDefault()
                     try {
