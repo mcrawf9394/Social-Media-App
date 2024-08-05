@@ -50,21 +50,12 @@ function Profile () {
         <DeleteDialog onClose={() => setShowModal(false)} />,
         document.body
       )}
-        <Form className="grid grid-rows-10 h-96 mt-10 w-10/12 mx-auto md:w-8/12">
+        <Form className="grid grid-rows-8 h-96 mt-10 w-10/12 mx-auto md:w-8/12">
             <img className="w-20 mx-auto row-span-2" src={`${profilePic[0].name}`} alt="User's Profile Picture" />
             <label className="text-gray-400 self-end" htmlFor="user">Username</label>
             <input className="bg-white border-2 border-solid border-gray-400 h-10" id="user" value={user} onChange={e => setUser(e.target.value)} type="text" required/>
             <label className="text-gray-400 self-end" htmlFor="bio">Bio</label>
             <input className="bg-white border-2 border-solid border-gray-400 h-10" id="bio" value={bio} onChange={e => setBio(e.target.value)} type="text" required/>
-            <label className="text-gray-400 self-end" htmlFor="picture">Upload Profile Picture</label>
-            <input className="" onChange={e => { 
-                   const reader = new FileReader()
-                   reader.readAsDataURL(e.target.files[0])
-                   reader.onloadend = () => {
-                       setProfilePic([{name: reader.result}])
-                   }   
-                   setFile(e.target.files[0])
-                }} id='picture' type='file' accept="image/*"/>
             <button className="text-gray-400" onClick={async click => {
                 click.preventDefault()
                 setErrors([{msg: ''}])
@@ -72,20 +63,20 @@ function Profile () {
                     setErrors([{msg: "Please do not edit the guest profile, to use these features create your own account"}])
                 } else {   
                     try {
-                        if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
-                            const formData = new FormData();
-                            formData.append('img', file);
-                            const req = await fetch(info + `/api/users/${params.userId}/picture`, {
-                                mode: 'cors',
-                                method: 'PUT',
-                                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
-                                body: formData
-                            })
-                            const res = await req.json()
-                            if (res.errors) {
-                                setErrors([{msg: 'There was an issue uploading this image.'}])
-                            }
-                        }
+                        // if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
+                        //     const formData = new FormData();
+                        //     formData.append('img', file);
+                        //     const req = await fetch(info + `/api/users/${params.userId}/picture`, {
+                        //         mode: 'cors',
+                        //         method: 'PUT',
+                        //         headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                        //         body: formData
+                        //     })
+                        //     const res = await req.json()
+                        //     if (res.errors) {
+                        //         setErrors([{msg: 'There was an issue uploading this image.'}])
+                        //     }
+                        // }
                         const request = await fetch(info + `/api/users/${params.userId}`,{
                             mode: 'cors',
                             method: 'PUT',
