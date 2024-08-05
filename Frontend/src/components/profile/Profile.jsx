@@ -72,20 +72,20 @@ function Profile () {
                     setErrors([{msg: "Please do not edit the guest profile, to use these features create your own account"}])
                 } else {   
                     try {
-                        if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
-                            const formData = new FormData();
-                            formData.append('img', file);
-                            const req = await fetch(info + `/api/users/${params.userId}/picture`, {
-                                mode: 'cors',
-                                method: 'PUT',
-                                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
-                                body: formData
-                            })
-                            const res = await req.json()
-                            if (res.errors) {
-                                setErrors([{msg: 'There was an issue uploading this image.'}])
-                            }
-                        }
+                        // if (profilePic[0].name != '../../../blank-profile-picture-973460_640.png') {
+                        //     const formData = new FormData();
+                        //     formData.append('img', file);
+                        //     const req = await fetch(info + `/api/users/${params.userId}/picture`, {
+                        //         mode: 'cors',
+                        //         method: 'PUT',
+                        //         headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`},
+                        //         body: formData
+                        //     })
+                        //     const res = await req.json()
+                        //     if (res.errors) {
+                        //         setErrors([{msg: 'There was an issue uploading this image.'}])
+                        //     }
+                        // }
                         const request = await fetch(info + `/api/users/${params.userId}`,{
                             mode: 'cors',
                             method: 'PUT',
@@ -95,18 +95,23 @@ function Profile () {
                                 bio: bio
                             })
                         })
-                        if (request.status === 404) {
-                            localStorage.clear()
-                            navigate('/login')
+                        if (request.status != 200) {
+                            if (request.status === 401) {
+                                localStorage.clear()
+                                navigate('/login')
+                            } else {
+                                setErrors([{msg: "There was an issue reaching the database"}])
+                            }
                         } else {
                             const response = await request.json()
                             if (response.errrors) {
                                 setErrors(response.errors)
                             }
                         }
-                        if (errors[0].msg === '') {
-                            navigate('/')
-                        }
+                        console.log(response)
+                        // if (errors[0].msg === '') {
+                        //     navigate('/')
+                        // }
                     } catch {
                         setErrors([{msg: 'There was an error reaching the server'}])
                     }
