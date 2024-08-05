@@ -109,9 +109,9 @@ function Profile () {
                             }
                         }
                         console.log(response)
-                        // if (errors[0].msg === '') {
-                        //     navigate('/')
-                        // }
+                        if (errors[0].msg === '') {
+                            navigate('/')
+                        }
                     } catch {
                         setErrors([{msg: 'There was an error reaching the server'}])
                     }

@@ -165,9 +165,11 @@ exports.updateUser = [
     body("username")
         .trim()
         .isLength({min: 1})
-        .custom(async value => {
+        .custom(async (value, {req}) => {
             const user = await User.findOne({username: value})
-            if (user != undefined || user != null) {
+            let token = req.headers.authorization.split(' ')[1]
+            let userId = jwt.decode(token).id
+            if (user._id != userId) {
                 throw new Error('User Already exists')
             }
         })
