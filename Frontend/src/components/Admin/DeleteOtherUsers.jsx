@@ -67,7 +67,7 @@ function DeleteOtherUsers () {
                                 })
                                 const response = await request.json()
                                 if (!response.users) {
-                                    console.log("Your mom")
+                                    console.log("There was an error reaching the database")
                                 } else {
                                     setUsers(response.users)
                                 }
